@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+
+# Downloaded source EEG and generated experiment outputs stay local.
+data/external/
+results/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
