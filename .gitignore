@@ -9,3 +9,7 @@ results/
 # OS/editor noise
 .DS_Store
 Thumbs.db
+
+# Manuscript render inspection frames
+manuscript/pdf_render*/
+manuscript/rendered/

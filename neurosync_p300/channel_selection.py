@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from .features import extract_features
+from .geometry import compute_observability_certificate, get_canonical_p300_leadfield
 from .model import DiagonalLDA
 
 
@@ -114,4 +115,99 @@ def forward_select_channels(
         cross_validated_balanced_accuracy=float(previous_score),
         history=history,
     )
+
+
+def biophysically_regularized_channel_selection(
+    epochs: np.ndarray,
+    labels: np.ndarray,
+    trial_ids: np.ndarray,
+    channel_names: list[str],
+    sampling_rate: float,
+    *,
+    leadfield: np.ndarray | None = None,
+    min_channels: int = 4,
+    max_channels: int = 6,
+    n_splits: int = 3,
+    beta_observability: float = 0.15,
+    beta_ambiguity: float = 0.10,
+    min_improvement: float = 0.002,
+    seed: int = 7,
+) -> ChannelSelectionResult:
+    """Select a compact 4-6 channel montage regularized by forward-model observability.
+
+    Unifies empirical cross-validation accuracy with Observable Geometry's
+    Source Observability Certificate and ambiguity penalty, eliminating channels
+    that artificially overfit to transient session noise or ocular artifacts.
+    """
+    if not 1 <= min_channels <= max_channels <= len(channel_names):
+        raise ValueError("channel limits must fit the available channels")
+    if leadfield is None:
+        leadfield = get_canonical_p300_leadfield(channel_names)
+
+    folds = _trial_folds(np.asarray(trial_ids), n_splits, seed)
+    selected: list[int] = []
+    history: list[dict] = []
+    previous_score = -np.inf
+
+    for size in range(1, max_channels + 1):
+        candidates = [i for i in range(len(channel_names)) if i not in selected]
+        candidate_scores = []
+        for candidate in candidates:
+            subset = selected + [candidate]
+            empirical_acc = _score_subset(epochs, labels, trial_ids, sampling_rate, subset, folds)
+            
+            # Compute geometric observability for candidate subset
+            sub_g = leadfield[subset, :]
+            sub_cov = np.cov(epochs[:, subset, :].mean(axis=-1).T) if len(subset) > 1 else np.eye(1)
+            if sub_cov.ndim < 2:
+                sub_cov = np.eye(len(subset))
+            report = compute_observability_certificate(sub_g, sub_cov)
+            
+            # Biophysically regularized objective
+            regularized_score = (
+                empirical_acc
+                + beta_observability * report.certificate
+                - beta_ambiguity * report.worst_case_ambiguity
+            )
+            candidate_scores.append((regularized_score, empirical_acc, report, candidate))
+
+        best_reg_score, best_emp_acc, best_rep, best_candidate = max(
+            candidate_scores, key=lambda item: (item[0], item[1], -item[3])
+        )
+        improvement = best_reg_score - previous_score if np.isfinite(previous_score) else np.inf
+
+        if size > min_channels and improvement < min_improvement:
+            history.append({
+                "size": size,
+                "added": channel_names[best_candidate],
+                "channels": [channel_names[i] for i in selected] + [channel_names[best_candidate]],
+                "regularized_score": round(float(best_reg_score), 6),
+                "empirical_accuracy": round(float(best_emp_acc), 6),
+                "observability_certificate": best_rep.certificate,
+                "worst_case_ambiguity": best_rep.worst_case_ambiguity,
+                "accepted": False,
+            })
+            break
+
+        selected.append(best_candidate)
+        history.append({
+            "size": size,
+            "added": channel_names[best_candidate],
+            "channels": [channel_names[i] for i in selected],
+            "regularized_score": round(float(best_reg_score), 6),
+            "empirical_accuracy": round(float(best_emp_acc), 6),
+            "observability_certificate": best_rep.certificate,
+            "worst_case_ambiguity": best_rep.worst_case_ambiguity,
+            "accepted": True,
+        })
+        previous_score = best_reg_score
+
+    final_emp_acc = _score_subset(epochs, labels, trial_ids, sampling_rate, selected, folds)
+    return ChannelSelectionResult(
+        indices=selected,
+        names=[channel_names[i] for i in selected],
+        cross_validated_balanced_accuracy=float(final_emp_acc),
+        history=history,
+    )
+
 

@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from .data import EEGDataset
+from .geometry import compute_observability_certificate, get_canonical_p300_leadfield
 from .model import DiagonalLDA
 from .quality import QualityAssessment
 
@@ -22,6 +23,8 @@ class DecoderConfig:
     minimum_epoch_quality: float = 0.45
     reseat_after_bad_repetitions: int = 2
     reject_confidence_threshold: float = 0.35
+    min_observability_certificate: float = 0.15
+    max_worst_case_ambiguity: float = 0.88
 
 
 @dataclass
@@ -37,6 +40,7 @@ class DecodedTrial:
     mean_quality: float = 1.0
     bad_repetitions: int = 0
     true_symbol: str | None = None
+    observability_certificate: float = 1.0
 
 
 def _softmax(scores: np.ndarray, temperature: float) -> np.ndarray:
@@ -54,6 +58,7 @@ def decode_dataset(
     config: DecoderConfig | None = None,
     fixed_repetitions: int | None = None,
     quality: QualityAssessment | None = None,
+    leadfield: np.ndarray | None = None,
 ) -> list[DecodedTrial]:
     """Decode one symbol per trial from flash-level model scores.
 
@@ -77,6 +82,11 @@ def decode_dataset(
 
     if quality is not None and len(quality.epoch_quality) != len(features):
         raise ValueError("quality and features must contain the same number of epochs")
+    
+    # Initialize biophysical leadfield if channel names are available
+    if leadfield is None and len(dataset.channel_names) > 0:
+        leadfield = get_canonical_p300_leadfield(dataset.channel_names)
+
     flash_scores = model.decision_function(features)
     decoded: list[DecodedTrial] = []
     for trial_id in np.unique(dataset.trial_ids):
@@ -96,12 +106,31 @@ def decode_dataset(
         top_history: list[str] = []
         bad_repetitions = 0
         repetition_quality: list[float] = []
+        repetition_certs: list[float] = []
         action = "REPEAT"
 
         for repetition in repetition_values[:max_rep]:
             current = trial_indices[dataset.repetitions[trial_indices] == repetition]
             current_quality = float(np.mean(quality.epoch_quality[current])) if quality is not None else 1.0
             repetition_quality.append(current_quality)
+            
+            # Geometry check
+            current_cert = 1.0
+            if leadfield is not None and len(current) > 1:
+                cur_epochs = dataset.epochs[current]
+                # Noise covariance across current repetition
+                rep_cov = np.cov(cur_epochs.mean(axis=-1).T) if cur_epochs.shape[1] > 1 else np.eye(1)
+                if rep_cov.ndim < 2 or rep_cov.shape[0] != leadfield.shape[0]:
+                    rep_cov = np.eye(leadfield.shape[0])
+                geo_report = compute_observability_certificate(leadfield, rep_cov)
+                current_cert = geo_report.certificate
+                if (
+                    geo_report.certificate < config.min_observability_certificate
+                    or geo_report.worst_case_ambiguity > config.max_worst_case_ambiguity
+                ):
+                    bad_repetitions += 1
+            repetition_certs.append(current_cert)
+
             if current_quality < config.minimum_epoch_quality:
                 bad_repetitions += 1
             else:
@@ -116,6 +145,9 @@ def decode_dataset(
                 set(top_history[-config.stability_repetitions:])
             ) == 1
 
+            # Dynamic margin threshold modulated by observability certificate
+            dynamic_margin_threshold = config.margin_threshold * (1.0 + 0.4 * (1.0 - current_cert))
+
             if fixed_repetitions is not None:
                 if repetition >= fixed_repetitions:
                     used = fixed_repetitions
@@ -124,8 +156,9 @@ def decode_dataset(
                 repetition >= config.min_repetitions
                 and stable
                 and current_quality >= config.minimum_epoch_quality
+                and current_cert >= config.min_observability_certificate
                 and confidence >= config.confidence_threshold
-                and margin >= config.margin_threshold
+                and margin >= dynamic_margin_threshold
             ):
                 used = int(repetition)
                 stop_early = used < max_rep
@@ -134,6 +167,7 @@ def decode_dataset(
 
         ordered = sorted(evidence.items(), key=lambda item: item[1], reverse=True)
         mean_quality = float(np.mean(repetition_quality)) if repetition_quality else 0.0
+        mean_cert = float(np.mean(repetition_certs)) if repetition_certs else 1.0
         if bad_repetitions >= config.reseat_after_bad_repetitions:
             action = "RESEAT_HEADSET"
         elif fixed_repetitions is not None:
@@ -155,7 +189,9 @@ def decode_dataset(
             mean_quality=mean_quality,
             bad_repetitions=bad_repetitions,
             true_symbol=true_symbol,
+            observability_certificate=mean_cert,
         ))
+    return decoded
     return decoded
 
 
