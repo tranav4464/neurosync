@@ -12,7 +12,7 @@ By unifying **Contact-Aware Adaptive Sparse P300 (CASP-X)** with **[Observable G
 
 ---
 
-## 1. The 3 Breakthroughs that Make Neurosync Elite
+## 1. The 3 Breakthroughs Made By NeuroSync
 
 ```
                                   TRADITIONAL BCI                                              NEUROSYNC UPGRADED
