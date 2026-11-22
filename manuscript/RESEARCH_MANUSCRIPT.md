@@ -166,7 +166,7 @@ where $\theta_0$ is the calibrated OOF margin threshold and $\gamma \ge 1$ is th
 $$\pi(s) = \begin{cases}
 \text{ACCEPT}(c_{(1)}), & \text{if } \Delta L(s) \ge \theta(s) \text{ and } \mathcal{O}_{\text{cert}}(s) \ge \mathcal{O}_{\min} \\
 \text{REPEAT}, & \text{if } \Delta L(s) < \theta(s) \text{ and } s < S_{\max} \\
-\text{RESEAT\_HEADSET}, & \text{if } \mathcal{O}_{\text{cert}}(s) < \mathcal{O}_{\text{crit}} \\
+\text{RESEAT-HEADSET}, & \text{if } \mathcal{O}_{\text{cert}}(s) < \mathcal{O}_{\text{crit}} \\
 \text{REJECT}, & \text{if } s = S_{\max} \text{ and } \Delta L(s) < \theta(s)
 \end{cases}$$
 
@@ -218,7 +218,7 @@ When sensor contact degrades, $\mathcal{O}_{\text{cert}} \to 0$, which causes $(
 
 $$\lim_{\mathcal{O}_{\text{cert}} \to 0} \text{FAR} \le \exp\left( -\frac{\theta_0^2 (1 + \gamma)^2}{2 s \sigma_L^2} \right) \ll \alpha_{\text{target}}$$
 
-Furthermore, if $\mathcal{O}_{\text{cert}} < \mathcal{O}_{\text{crit}}$, the condition $\mathcal{O}_{\text{cert}} \ge \mathcal{O}_{\min}$ in $\pi(s)$ evaluates to `FALSE`, setting $\text{FAR}_{\text{degraded}} \equiv 0$ by forcing state transition to $\text{RESEAT\_HEADSET}$. $\blacksquare$
+Furthermore, if $\mathcal{O}_{\text{cert}} < \mathcal{O}_{\text{crit}}$, the condition $\mathcal{O}_{\text{cert}} \ge \mathcal{O}_{\min}$ in $\pi(s)$ evaluates to `FALSE`, setting $\text{FAR}_{\text{degraded}} \equiv 0$ by forcing state transition to $\text{RESEAT-HEADSET}$. $\blacksquare$
 
 ---
 
