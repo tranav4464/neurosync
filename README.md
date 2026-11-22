@@ -12,7 +12,7 @@ It is an engineering prototype, not a medical device and not evidence of perform
 4. Regularized diagonal LDA for target versus non-target flashes.
 5. Symbol-level evidence accumulation across repetitions.
 6. Conservative adaptive stopping using confidence, top-two margin, and consecutive-symbol stability.
-7. A synthetic wet/dry electrode simulator and a reproducible comparison report.
+7. A synthetic wet/dry electrode generator and a reproducible comparison report.
 8. An NPZ interchange format and an end-to-end held-out-session runner for future EEG recordings.
 9. NeuroSync CASP: contact-quality gating (with optional quality weighting) and safe `ACCEPT` / `REPEAT` / `REJECT` / `RESEAT_HEADSET` decisions.
 
