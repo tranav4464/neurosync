@@ -24,7 +24,7 @@ The translational barrier stems directly from two unyielding physical constraint
 
 Historically, machine learning pipelines for P300 classification—including Stepwise Linear Discriminant Analysis (SWLDA) [11], Bayesian Linear Regression [12], Support Vector Machines (SVM) [13], and Riemannian geometry classifiers [14]—operate as *forced-choice deterministic decoders*. Under standard protocols, the speller flashes a fixed number of stimulus repetitions (typically 10–15) and blindly forces a symbol selection based on the argmax of accumulated flash scores, regardless of underlying signal quality. In low-channel dry setups, when an electrode experiences sudden impedance instability or transient detachment, the decoder inevitably selects a spurious character. In assistive communication, such unflagged errors are catastrophic: a patient attempting to communicate pain, medication needs, or emergency requests cannot afford a system that misinterprets noise as intent [15].
 
-To address contact degradation, the **Neurosync** framework introduces the Contact-Aware Adaptive Sparse P300 architecture (CASP-X), integrating real-time contact impedance tracking with an evidence-accumulating multi-state decoder that refuses to guess when data is compromised (`ACCEPT`, `REPEAT`, `REJECT`, `RESEAT_HEADSET`) [15, 16]. However, sensor selection and spatial filtering in low-channel BCIs have historically remained purely empirical—driven by greedy cross-validation on limited calibration trials. In sparse dry EEG, empirical selection notoriously overfits to idiosyncratic session noise, picking electrode subsets that may score well on training runs but lack fundamental geometric coverage over the underlying neural generators [17].
+To address contact degradation, the **Neurosync** framework introduces the Contact-Aware Adaptive Sparse P300 architecture (CASP-X), integrating real-time contact impedance tracking with an evidence-accumulating multi-state decoder that refuses to guess when data is compromised (`ACCEPT`, `REPEAT`, `REJECT`, `RESEAT_HEADSET`) [16]. However, sensor selection and spatial filtering in low-channel BCIs have historically remained purely empirical—driven by greedy cross-validation on limited calibration trials. In sparse dry EEG, empirical selection notoriously overfits to idiosyncratic session noise, picking electrode subsets that may score well on training runs but lack fundamental geometric coverage over the underlying neural generators [17].
 
 Concurrently, analytical forward-model diagnostics [18] provide a principled, data-free methodology for auditing EEG leadfield resolution. By projecting cortical leadfield matrices into noise-covariance eigenspaces, one can establish whether two disparate brain locations predict distinguishable scalp distributions, providing formal ambiguity metrics ($\rho$) and resolution matrices prior to source estimation [19, 20].
 
@@ -155,7 +155,7 @@ where $f_k(t)$ is the output of the SW-xDAWN + Shrinkage LDA classifier for stim
 In standard decoders, a symbol is emitted at $s=S_{\max}$ via:
 $$c^* = \arg\max_c L_c(S_{\max})$$
 
-Under CASP-X [15], the decoder evaluates the margin between the leading candidate $c_{(1)}$ and the runner-up $c_{(2)}$:
+Under CASP-X, the decoder evaluates the margin between the leading candidate $c_{(1)}$ and the runner-up $c_{(2)}$:
 $$\Delta L(s) = L_{c_{(1)}}(s) - L_{c_{(2)}}(s)$$
 
 We establish the **Geometry-Gated Dynamic Threshold**:
@@ -325,13 +325,13 @@ We have introduced a biophysically grounded P300 brain-computer interface framew
 
 [14] Congedo, M., Barachant, A., & Bhatia, R. (2017). Riemannian geometry for EEG-based brain-computer interfaces; a primer and a review. *Brain-Computer Interfaces*, 4(3), 155-180.
 
-[15] Tyagi, T. (2026). *Neurosync: Contact-Aware Adaptive Sequential Decoding and Observability Architecture for Sparse P300 Brain-Computer Interfaces*. Research Repository, GitHub: tranav4464/neurosync.
+[15] Wolpaw, J. R., & Wolpaw, E. W. (Eds.). (2012). *Brain-computer interfaces: principles and practice*. Oxford University Press.
 
 [16] Verschore, H., Kindermans, P. J., & Schrauwen, B. (2012). Dynamic stopping in P300 spellers: An information-theoretic perspective. *IEEE Transactions on Biomedical Engineering*, 60(5), 1432-1440.
 
 [17] Blankertz, B., Lemm, S., Treder, M., Haufe, S., & Müller, K. R. (2011). Single-trial analysis and classification of ERP components—a tutorial. *NeuroImage*, 56(2), 814-825.
 
-[18] Tyagi, T. (2026). *Observable Geometry: Analytical Forward-Model Observability, Cosine Ambiguity, and Subspace Whitening in Electromagnetic Source Imaging*. Research Repository, GitHub: tranav4464/observable-geometry.
+[18] Michel, C. M., & Brunet, D. (2019). EEG source imaging: a practical review of the analysis steps. *Frontiers in Neurology*, 10, 325.
 
 [19] Hämäläinen, M. S., & Ilmoniemi, R. J. (1994). Interpreting magnetic fields of the brain: minimum norm estimates. *Medical & Biological Engineering & Computing*, 32(1), 35-42.
 

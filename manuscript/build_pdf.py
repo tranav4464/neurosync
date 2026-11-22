@@ -31,7 +31,7 @@ def header_footer(canvas, doc):
     # Running header on later pages
     if doc.page > 1:
         canvas.drawString(0.75 * inch, 10.35 * inch, "Biophysically Constrained Sparse P300 BCIs")
-        canvas.drawRightString(7.75 * inch, 10.35 * inch, "Tyagi (2026)")
+        canvas.drawRightString(7.75 * inch, 10.35 * inch, "Research Manuscript (2026)")
         canvas.setStrokeColor(colors.HexColor("#CCCCCC"))
         canvas.setLineWidth(0.5)
         canvas.line(0.75 * inch, 10.25 * inch, 7.75 * inch, 10.25 * inch)
@@ -393,10 +393,10 @@ def build_pdf():
         "[12] Hoffmann, U., et al. (2008). An efficient P300-based BCI for disabled subjects. J. Neurosci. Methods, 167(1), 115-125.",
         "[13] Kaper, M., et al. (2004). Support vector machines for the P300 speller paradigm. IEEE Trans. Biomed. Eng., 51(6), 1073-1076.",
         "[14] Congedo, M., et al. (2017). Riemannian geometry for EEG-based BCIs: a review. Brain-Computer Interfaces, 4(3), 155-180.",
-        "[15] Tyagi, T. (2026). Neurosync: Contact-Aware Adaptive Sequential Decoding. GitHub: tranav4464/neurosync.",
+        "[15] Wolpaw, J. R., & Wolpaw, E. W. (Eds.). (2012). Brain-computer interfaces: principles and practice. Oxford University Press.",
         "[16] Verschore, H., et al. (2012). Dynamic stopping in P300 spellers. IEEE Trans. Biomed. Eng., 60(5), 1432-1440.",
         "[17] Blankertz, B., et al. (2011). Single-trial analysis of ERP components. NeuroImage, 56(2), 814-825.",
-        "[18] Tyagi, T. (2026). Observable Geometry: Forward-Model Observability. GitHub: tranav4464/observable-geometry.",
+        "[18] Michel, C. M., & Brunet, D. (2019). EEG source imaging: a practical review of the analysis steps. Frontiers in Neurology, 10, 325.",
         "[19] Hämäläinen, M. S., & Ilmoniemi, R. J. (1994). Minimum norm estimates. Med. Biol. Eng. Comput., 32(1), 35-42.",
         "[20] Grave de Peralta Menendez, R., et al. (2004). Electrical neuroimaging. NeuroImage, 21(2), 527-539.",
         "[21] Nunez, P. L., & Srinivasan, R. (2006). Electric fields of the brain. Oxford University Press.",
