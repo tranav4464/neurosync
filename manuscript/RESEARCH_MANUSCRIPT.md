@@ -1,14 +1,14 @@
-# Biophysically Constrained Sparse P300 Brain-Computer Interfaces: Unifying Forward-Model Observability Diagnostics with Contact-Aware Sequential Decoding
+# Biophysically Constrained Sparse P300 Brain-Computer Interfaces: Forward-Model Observability Diagnostics and Contact-Aware Sequential Decoding
 
 **Tranav Tyagi**  
 *Department of Computational Neuroscience and Neural Engineering, Neurosync Research Consortium*  
-*Correspondence: tranav.tyagi@neurosync.org | GitHub: [tranav4464/neurosync](https://github.com/tranav4464/neurosync) & [tranav4464/observable-geometry](https://github.com/tranav4464/observable-geometry)*
+*GitHub: [tranav4464/neurosync](https://github.com/tranav4464/neurosync) & [tranav4464/observable-geometry](https://github.com/tranav4464/observable-geometry)*
 
 ---
 
 ## Abstract
 
-Dry-electrode brain-computer interfaces (BCIs) represent a vital technological frontier for accessible assistive communication in motor-impaired populations, including individuals with amyotrophic lateral sclerosis (ALS). However, clinical translation has been fundamentally blocked by a mathematical and biophysical double-bind: ultra-sparse sensor arrays (4–6 channels) suffer from severe forward-model ambiguity, while dry sensor interfaces experience non-stationary contact impedance degradation, motion-induced baseline drift, and capacitive line noise. Conventional classification pipelines force deterministic decisions on corrupted inputs, inevitably precipitating catastrophic false-positive commands. Here, we present a unified, biophysically grounded BCI framework that bridges analytical forward-model observability diagnostics with a contact-aware adaptive sequential decoding policy (CASP-X). By projecting cortical leadfield manifolds into empirical noise-covariance subspaces via spectral truncation, our framework computes an instantaneous *Source Observability Certificate* ($\mathcal{O}_{\text{cert}}$). This metric mathematically certifies whether an active sparse sensor configuration preserves distinction between true centroparietal P300 dipoles (P3b) and confounding ocular/frontal artifact manifolds. We formulate a formal proof establishing that geometry-gated confidence boundaries upper-bound the False Accept Rate ($\text{FAR}$) under arbitrary sensor degradation. Across standardized benchmarks (BCI Competition III Dataset II) and calibrated dry-sensor stress-test suites, the unified framework maintains $\ge 88.4\%$ accepted character accuracy while slashing the critical false-accept rate to $\le 2.9\text{--}3.1\%$ under a 4-channel sparse configuration (Pz, CPz, Oz, Fz), matching the performance of an 8-channel wet-gel reference system while eliminating silent misclassification. The entire diagnostic and decoding pipeline executes in $<1.5\text{ ms}$ on low-power ARM architecture, demonstrating the real-time clinical viability of certified dry-electrode BCIs.
+Dry-electrode brain-computer interfaces (BCIs) represent a vital technological frontier for accessible assistive communication in motor-impaired populations, including individuals with amyotrophic lateral sclerosis (ALS). However, clinical translation has been fundamentally blocked by a mathematical and biophysical double-bind: ultra-sparse sensor arrays (4–6 channels) suffer from severe forward-model ambiguity, while dry sensor interfaces experience non-stationary contact impedance degradation, motion-induced baseline drift, and capacitive line noise. Conventional classification pipelines force deterministic decisions on corrupted inputs, inevitably precipitating catastrophic false-positive commands. Here, we present a biophysically grounded BCI framework that bridges analytical forward-model observability diagnostics with a contact-aware adaptive sequential decoding policy (CASP-X). By projecting cortical leadfield manifolds into empirical noise-covariance subspaces via spectral truncation, our framework computes an instantaneous *Source Observability Certificate* ($\mathcal{O}_{\text{cert}}$). This metric mathematically certifies whether an active sparse sensor configuration preserves distinction between true centroparietal P300 dipoles (P3b) and confounding ocular/frontal artifact manifolds. We formulate a formal proof establishing that geometry-gated confidence boundaries upper-bound the False Accept Rate ($\text{FAR}$) under arbitrary sensor degradation. Across standardized benchmarks (BCI Competition III Dataset II) and calibrated dry-sensor stress-test suites, the framework maintains $\ge 88.4\%$ accepted character accuracy while slashing the critical false-accept rate to $\le 2.9\text{--}3.1\%$ under a 4-channel sparse configuration (Pz, CPz, Oz, Fz), matching the performance of an 8-channel wet-gel reference system while eliminating silent misclassification. The entire diagnostic and decoding pipeline executes in $<1.5\text{ ms}$ on low-power ARM architecture, demonstrating the real-time clinical viability of certified dry-electrode BCIs.
 
 **Keywords:** Brain-Computer Interface (BCI), P300 Speller, Forward Model, Observable Geometry, Leadfield Ambiguity, Contact-Aware Sequential Policy (CASP-X), Dry Electrodes, Assistive Technology, Eigendecomposition.
 
@@ -125,13 +125,13 @@ where $\mathcal{A}_{\text{art}}$ denotes the generator manifold for known artifa
 
 ---
 
-## 3. The Unified Architecture: Neurosync $\oplus$ Observable Geometry
+## 3. The Integrated Architecture: Neurosync $\oplus$ Observable Geometry
 
-The unified pipeline embeds forward-model biophysical diagnostics directly into the real-time operational loop of the CASP-X speller.
+The architecture embeds forward-model biophysical diagnostics directly into the real-time operational loop of the CASP-X speller.
 
 ```
 +-----------------------------------------------------------------------------------------+
-|                                UNIFIED PIPELINE OVERVIEW                                |
+|                                INTEGRATED PIPELINE OVERVIEW                             |
 +-----------------------------------------------------------------------------------------+
   [ Raw Dry EEG Input: 4-6 Channels ]
                    |
@@ -163,7 +163,7 @@ Standard low-channel selection uses forward greedy search evaluated solely again
 
 $$\mathcal{M}^* = \arg\max_{|\mathcal{M}| = k} \text{Acc}_{\text{CV}}(\mathcal{M})$$
 
-In the unified system, we introduce the **Biophysically Regularized Channel Selection (BRCS)** objective. Given a candidate channel subset $\mathcal{M} \subset \{1, \ldots, M_{\text{total}}\}$ of size $k \in \{4, 5, 6\}$:
+In this architecture, we introduce the **Biophysically Regularized Channel Selection (BRCS)** objective. Given a candidate channel subset $\mathcal{M} \subset \{1, \ldots, M_{\text{total}}\}$ of size $k \in \{4, 5, 6\}$:
 
 $$\mathcal{J}(\mathcal{M}) = \text{Acc}_{\text{CV}}(\mathcal{M}) + \beta_1 \cdot \mathcal{O}_{\text{cert}}(G_{\mathcal{M}}, C_{\text{baseline}}) - \beta_2 \cdot \bar{\rho}(G_{\mathcal{M}}, C_{\text{baseline}})$$
 
@@ -195,7 +195,7 @@ Let $S_{(1)}$ and $S_{(2)}$ denote the symbols with the highest and second-highe
 
 $$\Delta_k = \ell_k(S_{(1)}) - \ell_k(S_{(2)})$$
 
-In our unified framework, **the stopping barrier is dynamically parameterized by the Source Observability Certificate**:
+Here, **the stopping barrier is dynamically parameterized by the Source Observability Certificate**:
 
 $$\theta_{\text{margin}}(t) = \theta_0 \cdot \left( 1 + \gamma \cdot \left[ 1 - \mathcal{O}_{\text{cert}}(G_{\text{active}}, C_t) \right] \right)$$
 
@@ -227,7 +227,7 @@ $$\text{FAR} \le \frac{1}{1 + \frac{\mathbb{P}(\mathcal{H}_1)}{\mathbb{P}(\mathc
 ### Algorithm 1: Real-Time Geometry-Gated Sequential P300 Decoding
 
 ```python
-# Implementation of the unified Neurosync-Observable Geometry decoder
+# Implementation of the Geometry-Gated CASP-X decoder
 def decode_symbol_trial(epoch_stream, leadfield_G, C_baseline, K_max=10):
     """
     Decodes a single character trial using Observability-Gated CASP-X.
@@ -283,7 +283,7 @@ def decode_symbol_trial(epoch_stream, leadfield_G, C_baseline, K_max=10):
 ## 4. Experimental Setup & Validation Methodology
 
 ### 4.1 Datasets and Benchmarks
-To evaluate the unified framework rigorously, we conducted experiments across two extensive testbeds:
+To evaluate the framework rigorously, we conducted experiments across two extensive testbeds:
 
 1. **BCI Competition III Dataset II (Standard Benchmark):**
    - 64-channel wet-gel recordings from two subjects (Subject A and Subject B) performing the classical $6 \times 6$ P300 matrix speller task [26].
@@ -308,7 +308,7 @@ We benchmarked the proposed system against prevailing BCI decoders:
 1. **Fixed-Repetition SWLDA:** Classical Stepwise Linear Discriminant Analysis forcing output at $K = 15$ repetitions [11].
 2. **Standard xDAWN + Shrinkage LDA:** Traditional spatial filtering with forced classification [25].
 3. **Unconstrained CASP (Ablation Baseline):** Empirical contact-aware sequential policy relying solely on scalar artifact thresholds without forward-model observability constraints.
-4. **Unified Geometry-Gated CASP-X (Proposed):** Full architecture integrating BRCS channel selection, subspace-whitened spatial filtering, and $\mathcal{O}_{\text{cert}}$-modulated dynamic stopping.
+4. **Geometry-Gated CASP-X (Proposed):** Full architecture integrating BRCS channel selection, subspace-whitened spatial filtering, and $\mathcal{O}_{\text{cert}}$-modulated dynamic stopping.
 
 ### 4.4 Evaluation Metrics
 In safety-critical assistive communication, standard raw accuracy is an incomplete and dangerously misleading metric [15]. We report five rigorous performance indices:
@@ -336,20 +336,20 @@ Benchmark: BCI Competition III (Downsampled to 4 Channels)
   Fixed SWLDA (K=15)                         69.5 +- 2.4         30.5 +- 2.4        100.0 (Forced)    15.0             11.2 +- 1.1
   Standard xDAWN + LDA (K=15)                74.0 +- 2.1         26.0 +- 2.1        100.0 (Forced)    15.0             13.8 +- 1.3
   Unconstrained CASP (Baseline)              82.5 +- 1.8          9.2 +- 1.1         88.5 +- 1.5       7.8 +- 0.6      18.4 +- 1.4
-  Unified Geometry-Gated CASP-X (Ours)       89.2 +- 1.2          3.1 +- 0.4         91.0 +- 1.1       6.9 +- 0.5      23.6 +- 1.2
+  Geometry-Gated CASP-X (Ours)               89.2 +- 1.2          3.1 +- 0.4         91.0 +- 1.1       6.9 +- 0.5      23.6 +- 1.2
 -------------------------------------------------------------------------------------------------------------------
 Dry Stress-Test Suite (High Impedance Drift + Transient Electrode Lifting)
   Fixed SWLDA (K=15)                         48.2 +- 3.8         51.8 +- 3.8        100.0 (Forced)    15.0              4.1 +- 0.9
   Standard xDAWN + LDA (K=15)                53.4 +- 3.5         46.6 +- 3.5        100.0 (Forced)    15.0              5.6 +- 1.0
   Unconstrained CASP (Baseline)              76.8 +- 2.6         14.4 +- 1.8         79.2 +- 2.3       9.2 +- 0.8      12.1 +- 1.5
-  Unified Geometry-Gated CASP-X (Ours)       88.4 +- 1.5          2.9 +- 0.5         87.6 +- 1.4       7.4 +- 0.6      21.8 +- 1.3
+  Geometry-Gated CASP-X (Ours)               88.4 +- 1.5          2.9 +- 0.5         87.6 +- 1.4       7.4 +- 0.6      21.8 +- 1.3
 ===================================================================================================================
 Values represent Mean +- Standard Deviation across 20 independent simulation seeds and subject partitions.
 ```
 
 As demonstrated in Table 1, under high-noise dry stress conditions, standard forced-choice models fail completely, emitting wrong characters on approximately half of all trials ($\text{FAR} = 51.8\%$ and $46.6\%$). Unconstrained CASP improves safety by gating severely degraded trials, but its empirical-only metrics still permit a $14.4\%$ false accept rate because it cannot detect when a sensor subset becomes topologically degenerate. 
 
-The **Unified Geometry-Gated CASP-X** suppresses the false accept rate to **$2.9\%$**, while simultaneously achieving **$88.4\%$ accepted accuracy** and an ITR of **$21.8\text{ bits/min}$**. This represents a **$76\%$ reduction in unflagged communication errors** compared to empirical CASP alone.
+The **Geometry-Gated CASP-X** suppresses the false accept rate to **$2.9\%$**, while simultaneously achieving **$88.4\%$ accepted accuracy** and an ITR of **$21.8\text{ bits/min}$**. This represents a **$76\%$ reduction in unflagged communication errors** compared to empirical CASP alone.
 
 ---
 
@@ -358,11 +358,11 @@ To determine the exact performance contribution of each mathematical layer, we c
 
 ```
 ===================================================================================================================
-Table 2: Systematic Component Ablation of the Unified Architecture (4-Channel Sparse Configuration)
+Table 2: Systematic Component Ablation of the Architecture (4-Channel Sparse Configuration)
 ===================================================================================================================
 Ablation Stage                               Acc_acc (%)    FAR (%)      Coverage (%)    Worst-Case rho    Reseat Accuracy (%)
 -------------------------------------------------------------------------------------------------------------------
-1. Full Unified System                          88.4          2.9           87.6             0.612                96.4
+1. Full System (Geometry-Gated CASP-X)          88.4          2.9           87.6             0.612                96.4
 2. (-) Remove Observability Gate (O_cert)       81.2          8.6           89.4             0.612                68.2
 3. (-) Remove Subspace Whitening (SW-xDAWN)     84.5          4.8           82.1             0.612                94.8
 4. (-) Remove Geometry Montage Selection        79.0         12.1           84.0             0.844                72.0
@@ -384,7 +384,7 @@ Figure 2 illustrates the accepted accuracy and false-accept curves as the number
 ```
 Figure 2: Performance Scaling and Error Bounds Across Montage Sizes
 Accepted Accuracy (%)
-100 |                                       Unified CASP-X [Ours]
+100 |                                       Geometry-Gated CASP-X [Ours]
  95 |                              *---------*---------*---------* (Montage D)
  90 |                    *--------*
  85 |          *--------*                    +---------+---------+ Standard Wet Reference
@@ -402,11 +402,11 @@ False Accept Rate (%) [Lower is Better]
   5 |  +-------*---------*---------*---------*---------*---------* Safety Ceiling (5%)
   0 +-------------------------------------------------------------
        3 ch      4 ch      5 ch      6 ch      8 ch      16 ch
-    Legend:  [*] Unified CASP-X    [+] Standard Wet    [x] Unconstrained CASP
+    Legend:  [*] Geometry-Gated CASP-X    [+] Standard Wet    [x] Unconstrained CASP
 ```
 
 ![Figure 4: Safety-Accuracy Pareto Frontier](figures/fig4_pareto_frontier.png)
-*Figure 4: Safety-accuracy Pareto frontier under high-noise dry-sensor conditions. The clinical safety zone ($\text{FAR} \le 5\%$) is shaded in green. While conventional decoders (SWLDA, xDAWN) suffer catastrophic failure rates ($\ge 46\%$), Unified CASP-X suppresses errors to $2.9\%$, rivaling standard 8-channel wet arrays.*
+*Figure 4: Safety-accuracy Pareto frontier under high-noise dry-sensor conditions. The clinical safety zone ($\text{FAR} \le 5\%$) is shaded in green. While conventional decoders (SWLDA, xDAWN) suffer catastrophic failure rates ($\ge 46\%$), Geometry-Gated CASP-X suppresses errors to $2.9\%$, rivaling standard 8-channel wet arrays.*
 
 ![Figure 5: Real-Time Dynamic Sequential Decoding Dynamics](figures/fig5_decoding_dynamics.png)
 *Figure 5: Sequential evidence accumulation and biophysical safety gating. (Top) Accumulated evidence margin ($\Delta_k$) crossing the dynamic confidence barrier $\theta_{\text{margin}}(t)$ for an early-stopped `ACCEPT` decision at repetition 4. (Bottom) Source Observability Certificate ($\mathcal{O}_{\text{cert}}$) response during nominal operation vs. sudden electrode detachment, immediately alerting caregivers via `RESEAT_HEADSET`.*
@@ -414,7 +414,7 @@ False Accept Rate (%) [Lower is Better]
 ![Figure 6: Low-Power Embedded Execution Latency Profile](figures/fig6_hardware_profiling.png)
 *Figure 6: Low-power embedded execution latency breakdown across ARM Cortex-M7 ($1.48\text{ ms}$), Raspberry Pi 5 ($0.18\text{ ms}$), and host CPU. All configurations consume $<1.2\%$ of the standard $125\text{--}250\text{ ms}$ inter-stimulus interval (ISI), proving real-time wearable viability.*
 
-Critically, **at 4 channels, the Unified Geometry-Gated CASP-X matches the accepted accuracy ($88.4\%$ vs. $88.1\%$) and achieves a superior safety profile ($\text{FAR} = 2.9\%$ vs. $4.2\%$) compared to a standard 8-channel wet-gel system operating under classical decoding.** This confirms that rigorous mathematical gating and biophysical sensor optimization can overcome the hardware deficit of sparse dry arrays.
+Critically, **at 4 channels, the Geometry-Gated CASP-X matches the accepted accuracy ($88.4\%$ vs. $88.1\%$) and achieves a superior safety profile ($\text{FAR} = 2.9\%$ vs. $4.2\%$) compared to a standard 8-channel wet-gel system operating under classical decoding.** This confirms that rigorous mathematical gating and biophysical sensor optimization can overcome the hardware deficit of sparse dry arrays.
 
 ---
 
@@ -448,7 +448,7 @@ By anchoring the CASP-X policy to **forward-model ambiguity diagnostics**, our s
 ### 6.2 The Clinical Imperative of Multi-State Safety
 In clinical assistive technology for locked-in or severely paralyzed users, an erroneous command (e.g., accidentally selecting "DELETE ALL", triggering an unwanted alarm, or miscommunicating medical symptoms) carries vastly higher human and operational costs than a brief pause to repeat a trial [15, 30]. Standard BCI benchmarks report raw accuracy, which incentivizes decoders to guess even on 51/49% ambiguities.
 
-Our results demonstrate that by accepting a modest, controlled deferral rate (gated coverage of $87.6\%$), the unified system achieves an unprecedented $\text{FAR} \le 3.1\%$. Furthermore, the `RESEAT_HEADSET` state provides clear, automated feedback to caregivers, pinpointing physical contact degradation without requiring an electroencephalographer to inspect raw microvolt traces.
+Our results demonstrate that by accepting a modest, controlled deferral rate (gated coverage of $87.6\%$), the system achieves an unprecedented $\text{FAR} \le 3.1\%$. Furthermore, the `RESEAT_HEADSET` state provides clear, automated feedback to caregivers, pinpointing physical contact degradation without requiring an electroencephalographer to inspect raw microvolt traces.
 
 ### 6.3 Hardware Feasibility, Co-Design & Computational Complexity
 A critical requirement for clinical translation is that all diagnostics and safety gates must execute in real time on low-power consumer hardware (e.g., an embedded Raspberry Pi 5, an onboard ARM Cortex-M microcontroller, or a mobile tablet paired via Bluetooth to a dry headset) [31]. We are actively co-designing the physical headset hardware around this biophysical architecture:
@@ -460,7 +460,7 @@ A critical requirement for clinical translation is that all diagnostics and safe
 
 ## 7. Clinical Translation Protocol & Limitations
 
-While this paper establishes the mathematical and algorithmic efficacy of the unified framework, ethical translation to locked-in patients requires strict protocol adherence [31]:
+While this paper establishes the mathematical and algorithmic efficacy of the framework, ethical translation to locked-in patients requires strict protocol adherence [31]:
 
 1. **Investigational Review Board (IRB) & Safety Gate:** Clinical trials in vulnerable ALS cohorts must never rely on automated systems without a concurrent, mechanical or caregiver-observed fail-safe channel (e.g., eye-tracker or switch buzzer) [32].
 2. **Counterbalanced Wet vs. Dry Validation:** Initial human trials must execute within-subject counterbalanced blocks to account for user fatigue, circadian attention fluctuation, and sensory adaptation to visual flashing [33].
@@ -470,7 +470,7 @@ While this paper establishes the mathematical and algorithmic efficacy of the un
 
 ## 8. Conclusion
 
-We have introduced a unified, biophysically constrained paradigm for sparse dry-electrode P300 brain-computer interfaces, bridging analytical forward-model diagnostics with the contact-aware sequential decision framework (CASP-X). By enforcing rank-deficient noise-subspace whitening, observability-optimized sensor selection, and geometry-gated multi-state stopping, the architecture guarantees that sparse dry arrays operate only within mathematically certified regimes of source distinguishability. Under severe contact noise, the framework achieves $\ge 88.4\%$ accepted character accuracy and suppresses critical false-accept errors to $\le 2.9\text{--}3.1\%$ using only 4 dry channels (Pz, CPz, Oz, Fz), rivaling standard 8-channel wet-gel systems while eliminating silent misclassification. This work provides the mathematical foundation and safety architecture necessary to transition dry-electrode BCIs from fragile laboratory curiosities into dependable, life-critical assistive medical devices.
+We have introduced a biophysically constrained paradigm for sparse dry-electrode P300 brain-computer interfaces, bridging analytical forward-model diagnostics with the contact-aware sequential decision framework (CASP-X). By enforcing rank-deficient noise-subspace whitening, observability-optimized sensor selection, and geometry-gated multi-state stopping, the architecture guarantees that sparse dry arrays operate only within mathematically certified regimes of source distinguishability. Under severe contact noise, the framework achieves $\ge 88.4\%$ accepted character accuracy and suppresses critical false-accept errors to $\le 2.9\text{--}3.1\%$ using only 4 dry channels (Pz, CPz, Oz, Fz), rivaling standard 8-channel wet-gel systems while eliminating silent misclassification. This work provides the mathematical foundation and safety architecture necessary to transition dry-electrode BCIs from fragile laboratory curiosities into dependable, life-critical assistive medical devices.
 
 ---
 

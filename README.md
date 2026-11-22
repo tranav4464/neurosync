@@ -2,13 +2,13 @@
 
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Unified with Observable Geometry](https://img.shields.io/badge/Forward%20Model-Observable%20Geometry-green.svg)](https://github.com/tranav4464/observable-geometry)
+[![Observable Geometry Integration](https://img.shields.io/badge/Forward%20Model-Observable%20Geometry-green.svg)](https://github.com/tranav4464/observable-geometry)
 
 **Neurosync** is an advanced, safety-critical brain-computer interface (BCI) speller framework engineered for ultra-sparse (4–6 channel) dry/semi-dry electrode headsets. 
 
-By unifying **Contact-Aware Adaptive Sparse P300 (CASP-X)** with **[Observable Geometry](https://github.com/tranav4464/observable-geometry)** forward-model ambiguity diagnostics, Neurosync bridges the gap between empirical time-series decoding and biophysical leadfield physics. The framework mathematically certifies sensor distinguishability over P300 neural generators (centroparietal P3b and frontal P3a) while actively suppressing catastrophic false accepts during sensor contact degradation.
+By integrating **Contact-Aware Adaptive Sparse P300 (CASP-X)** with **[Observable Geometry](https://github.com/tranav4464/observable-geometry)** forward-model ambiguity diagnostics, Neurosync bridges the gap between empirical time-series decoding and biophysical leadfield physics. The framework mathematically certifies sensor distinguishability over P300 neural generators (centroparietal P3b and frontal P3a) while actively suppressing catastrophic false accepts during sensor contact degradation.
 
-📄 **Full Q1 Journal Manuscript:** [`manuscript/MANUSCRIPT_Q1_UNIFIED.md`](manuscript/MANUSCRIPT_Q1_UNIFIED.md)
+📄 **Full Research Manuscript:** [`manuscript/RESEARCH_MANUSCRIPT.md`](manuscript/RESEARCH_MANUSCRIPT.md)
 
 ---
 
@@ -75,14 +75,14 @@ neurosync/
 │   ├── RESEARCH_BRIEF.md           # Core research questions, hypotheses, and clinical rationale
 │   ├── PROJECT_OVERVIEW.md         # Comprehensive system overview and target metrics
 │   ├── PERFORMANCE_TARGET_FRAMEWORK.md # >=85% accepted accuracy and <=5% FAR targets
-│   ├── Q1_TRANSLATION_PROTOCOL.md  # IRB and clinical human-study translation roadmaps
+│   ├── CLINICAL_TRANSLATION_PROTOCOL.md # IRB and clinical human-study translation roadmaps
 │   ├── REAL_DATA_REPLICATION_LOG.md# BCI Competition III real-data replication log
 │   ├── DEEP_PRIOR_WORK_MATRIX.md   # Prior art comparison matrix
 │   ├── RESEARCH_GAP_REVIEW.md      # Literature review of sparse dry BCI limitations
 │   └── SYSTEM_SNAPSHOT.md          # Architectural snapshot
 ├── manuscript/                     # Complete publication package
-│   ├── MANUSCRIPT_Q1_UNIFIED.md    # 10-12 page SCI Q1 publication manuscript (IEEE TBME style)
-│   ├── figures/                    # 300 DPI publication figures (fig1 through fig4)
+│   ├── RESEARCH_MANUSCRIPT.md      # Peer-reviewed style publication manuscript (IEEE TBME format)
+│   ├── figures/                    # 300 DPI publication figures (fig1 through fig6)
 │   └── generate_figures.py         # Matplotlib figure generation engine
 ├── notebooks/                      # Interactive Jupyter notebooks for judges & reviewers
 │   └── neurosync_observability_verification.ipynb # Interactive verification of forward models & CASP-X
