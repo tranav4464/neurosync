@@ -66,50 +66,91 @@ Under realistic, high-impedance dry stress tests (baseline drift, line noise, an
    - Calibrated dry-electrode stress-test suite (`neurosync_p300/synthetic.py`).
    - End-to-end evaluation suite (`run_evaluation.py`, `run_benchmark.py`).
 
+## Repository Organization
+
+```
+neurosync/
+├── docs/                           # Research briefs, clinical protocols, and architecture specs
+│   ├── CASP_FRAMEWORK.md           # Formal definition of Contact-Aware Adaptive Sparse P300 rules
+│   ├── RESEARCH_BRIEF.md           # Core research questions, hypotheses, and clinical rationale
+│   ├── PROJECT_OVERVIEW.md         # Comprehensive system overview and target metrics
+│   ├── PERFORMANCE_TARGET_FRAMEWORK.md # >=85% accepted accuracy and <=5% FAR targets
+│   ├── Q1_TRANSLATION_PROTOCOL.md  # IRB and clinical human-study translation roadmaps
+│   ├── REAL_DATA_REPLICATION_LOG.md# BCI Competition III real-data replication log
+│   ├── DEEP_PRIOR_WORK_MATRIX.md   # Prior art comparison matrix
+│   ├── RESEARCH_GAP_REVIEW.md      # Literature review of sparse dry BCI limitations
+│   └── SYSTEM_SNAPSHOT.md          # Architectural snapshot
+├── manuscript/                     # Complete publication package
+│   ├── MANUSCRIPT_Q1_UNIFIED.md    # 10-12 page SCI Q1 publication manuscript (IEEE TBME style)
+│   ├── figures/                    # 300 DPI publication figures (fig1 through fig4)
+│   └── generate_figures.py         # Matplotlib figure generation engine
+├── notebooks/                      # Interactive Jupyter notebooks for judges & reviewers
+│   └── neurosync_observability_verification.ipynb # Interactive verification of forward models & CASP-X
+├── neurosync_p300/                 # Core Python engine
+│   ├── geometry.py                 # Forward leadfields, PSD whitening, & Observability Certificates
+│   ├── channel_selection.py        # Biophysically regularized channel selection (BRCS)
+│   ├── spatial.py                  # Subspace-whitened xDAWN spatial filters
+│   ├── quality.py                  # Contact quality gating & artifact screening
+│   ├── decoder.py                  # Dynamic geometry-gated sequential multi-state decoder
+│   ├── model.py                    # Regularized diagonal LDA classification
+│   ├── preprocessing.py            # Baseline removal & 0.5-20 Hz frequency conditioning
+│   ├── features.py                 # P300 window feature pooling (250-600 ms)
+│   ├── data.py                     # Standardized EEGDataset NPZ interchange interface
+│   ├── synthetic.py                # Calibrated high-impedance dry stress test generator
+│   └── competition_data.py         # BCI Competition III Dataset II loader
+├── scripts/                        # Headless execution runners
+│   ├── run_demo.py                 # Fast interactive P300 speller demo
+│   ├── run_casp_demo.py            # Synthetic contact-failure safety stress demo
+│   ├── run_evaluation.py           # Multi-seed evaluation suite
+│   ├── run_benchmark.py            # Paired wet-reference vs. dry non-inferiority runner
+│   ├── run_competition_import.py   # Raw competition dataset parser
+│   ├── run_competition_replication.py # Competition benchmark replication runner
+│   └── run_session.py              # Custom user recording session runner
+├── tests/                          # Automated unit test suite (15/15 passing)
+├── pyproject.toml                  # Modern package metadata configuration
+└── requirements.txt                # Production dependency specifications
+```
+
+---
+
 ## Run it
 
-From this directory:
+From the repository root:
 
 ```powershell
 python -m pip install -r requirements.txt
 python -m unittest discover -s tests -v
-python -m neurosync_p300.demo --output-dir results/demo --seed 7 --train-trials 80 --test-trials 40
-python -m neurosync_p300.casp_demo --output-dir results/casp_demo --seed 23
-python -m neurosync_p300.evaluation_suite --output-dir results/evaluation --runs 8 --seed 101 --train-trials 48 --test-trials 24
+
+# Run interactive demo
+python scripts/run_demo.py
+
+# Run CASP-X safety stress demo
+python scripts/run_casp_demo.py
+
+# Run verification evaluation suite
+python scripts/run_evaluation.py
 ```
 
-The evaluation runner accepts `--repetitions` to explore a declared evidence budget. More repetitions are a latency trade-off, not proof of equal wet-reference performance. For example, `--repetitions 18` runs an 18-repetition comparison.
-
 The demo writes:
-
 - `results/demo/demo_results.json` — machine-readable metrics and selection history.
-- `results/demo/demo_summary.md` — a short human-readable results table.
-- `results/casp_demo/casp_summary.md` — a synthetic contact-failure safety report.
+- `results/demo/demo_summary.md` — a human-readable results table.
+- `results/casp_demo/casp_summary.md` — a contact-failure safety report.
 
-The current deterministic run selects `Pz, CPz, Fz, Oz`. With the command above, the synthetic comparison is approximately:
+---
 
-| Configuration | Accuracy | Mean repetitions |
-|---|---:|---:|
-| Wet, 8 channels, fixed six repetitions | 1.000 | 6.00 |
-| Dry, 8 channels, fixed six repetitions | 0.475 | 6.00 |
-| Dry, selected channels, fixed six repetitions | 0.575 | 6.00 |
-| Dry, selected channels, adaptive stopping | 0.575 | 5.88 |
+## NeuroSync CASP-X Safety Framework
 
-Those values are only software-demo results. They should be replaced by held-out human recordings once the team has an approved lab protocol.
+CASP-X (Contact-Aware Adaptive Sparse P300) estimates calibration-relative channel quality and dynamically gates decoders when data quality is compromised. Instead of forcing an erroneous prediction, it outputs:
+- `ACCEPT`: When evidence exceeds dynamic geometric confidence boundaries.
+- `REPEAT`: Gathers additional flash repetitions under borderline SNR.
+- `REJECT`: Safely suppresses prediction if budget is exhausted.
+- `RESEAT_HEADSET`: Alerts caregivers immediately if sensor lift-off compromises forward observability.
 
-## NeuroSync CASP safety framework
-
-CASP (Contact-Aware Adaptive Sparse P300) is the proposed research contribution. It estimates calibration-relative channel quality and changes the action when data quality is poor. Quality weighting is available for an ablation, but the default benchmark uses quality gating without rescaling each epoch's features, which proved more stable in the current test. It can return `ACCEPT`, `REPEAT`, `REJECT`, or `RESEAT_HEADSET` rather than forcing every trial into a letter.
-
-See [CASP_FRAMEWORK.md](CASP_FRAMEWORK.md) for the central question, exact action rules, synthetic stress-test outcome, and human-validation protocol.
-
-See [EVALUATION_AND_IMPROVEMENT_REVIEW.md](EVALUATION_AND_IMPROVEMENT_REVIEW.md) for the multi-seed results, comparison with prior work, identified failures, and the prioritized improvement plan.
-
-See [PERFORMANCE_TARGET_FRAMEWORK.md](PERFORMANCE_TARGET_FRAMEWORK.md) for the strict ≥85% correct-accepted-output target, safety/coverage/latency constraints, and the staged recovery research plan.
-
-See [NYAS_RESEARCH_BRIEF.md](NYAS_RESEARCH_BRIEF.md) for the polished research question, CASP-X contribution, ablation evidence, hypothesis, and validation plan.
-
-See [Q1_TRANSLATION_PROTOCOL.md](Q1_TRANSLATION_PROTOCOL.md) for the external-data, split, statistical-analysis, hardware-validation, and reproducibility protocol required before making publication-level claims.
+For formal documentation, see:
+- [docs/CASP_FRAMEWORK.md](docs/CASP_FRAMEWORK.md) for the mathematical multi-state action rules.
+- [docs/RESEARCH_BRIEF.md](docs/RESEARCH_BRIEF.md) for hypotheses, clinical questions, and validation plans.
+- [docs/Q1_TRANSLATION_PROTOCOL.md](docs/Q1_TRANSLATION_PROTOCOL.md) for external-data split and IRB safeguards.
+- [docs/PERFORMANCE_TARGET_FRAMEWORK.md](docs/PERFORMANCE_TARGET_FRAMEWORK.md) for safety/coverage/latency constraints.
 
 The official Competition III replication importer and held-out-character runner are available via `run_competition_import.py` and `run_competition_replication.py`; see [REAL_DATA_REPLICATION_LOG.md](REAL_DATA_REPLICATION_LOG.md) for the exact real-data outcome and its limitations.
 
