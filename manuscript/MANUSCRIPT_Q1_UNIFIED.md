@@ -103,8 +103,14 @@ Figure 1: Forward-Model Geometry from Cortical Dipoles to Whitened Sensor Space
 +-----------------------+
 ```
 
-![Figure 1: Forward-Model Geometry and Biophysical Ambiguity Diagnostics](figures/fig1_biophysical_observability.png)
-*Figure 1: Forward-model biophysics and ambiguity diagnostics. (a) Normalized forward leadfield topographies ($G$) demonstrating distinct spatial projections for parietal target P3b, frontal target P3a, and ocular blink artifacts across 10-20 channels. (b) Noise covariance eigenspectrum under nominal calibration, dry-sensor impedance spikes, and after rank-deficient subspace whitening ($\tilde{C} = I_r$). (c) Pairwise forward ambiguity matrix ($\rho_{ij} = |u_i^\top u_j|$) over optimized 4-channel montage `['Pz', 'CPz', 'Oz', 'Fz']`, confirming strong biophysical separation between P3b generators and ocular artifacts ($\rho = 0.11$).*
+![Figure 1: Forward Leadfield Topographies](figures/fig1_leadfield_topographies.png)
+*Figure 1: Canonical forward leadfield topographies across 10-20 channels ($G$), demonstrating strong topographic separation between target P3b (parietal dipole), target P3a (frontal dipole), and ocular blink artifact dipoles.*
+
+![Figure 2: Noise Covariance Eigenspectrum & Subspace Whitening](figures/fig2_eigenspectrum_whitening.png)
+*Figure 2: Noise covariance eigenspectrum under nominal calibration, dry-sensor impedance spikes, and after rank-deficient subspace whitening ($\tilde{C} = I_r$), showing robust conditioning without noise explosion.*
+
+![Figure 3: Pairwise Forward Ambiguity Matrix](figures/fig3_ambiguity_matrix.png)
+*Figure 3: Pairwise forward ambiguity matrix ($\rho_{ij} = |u_i^\top u_j|$) over optimized 4-channel montage `['Pz', 'CPz', 'Oz', 'Fz']`, confirming strong biophysical separation between P3b generators and ocular artifacts ($\rho = 0.11$).*
 
 ### 2.4 Linear Resolution and the Source Observability Certificate
 For a prioritized region of interest $\mathcal{R}_{\text{P300}}$ containing the primary dipole generators of the P300 complex—specifically the P3b subcomponent in the bilateral inferior parietal lobule and temporoparietal junction, and the P3a subcomponent in the anterior cingulate cortex [24]—we define the regularized Bayesian linear resolution matrix:
@@ -399,14 +405,14 @@ False Accept Rate (%) [Lower is Better]
     Legend:  [*] Unified CASP-X    [+] Standard Wet    [x] Unconstrained CASP
 ```
 
-![Figure 2: Performance Tradeoffs and Communication Rate](figures/fig2_performance_tradeoffs.png)
-*Figure 2: Safety-accuracy Pareto frontier and communication bandwidth. (a) Accepted character accuracy vs. False Accept Rate ($\text{FAR}$). The clinical safety ceiling ($\le 5\%$) is highlighted in green; while conventional decoders suffer catastrophic failure rates ($\ge 46\%$), Unified CASP-X suppresses errors to $2.9\%$. (b) Practical Bit Rate (ITR, bits/min) and mean repetitions required to reach confident stopping across models.*
+![Figure 4: Safety-Accuracy Pareto Frontier](figures/fig4_pareto_frontier.png)
+*Figure 4: Safety-accuracy Pareto frontier under high-noise dry-sensor conditions. The clinical safety zone ($\text{FAR} \le 5\%$) is shaded in green. While conventional decoders (SWLDA, xDAWN) suffer catastrophic failure rates ($\ge 46\%$), Unified CASP-X suppresses errors to $2.9\%$, rivaling standard 8-channel wet arrays.*
 
-![Figure 3: Real-Time Trial Decoded Dynamics & O_cert Gating Trace](figures/fig3_casp_x_trace.png)
-*Figure 3: Sequential evidence accumulation and biophysical safety gating. (Top) Accumulated evidence margin ($\Delta_k$) crossing the dynamic confidence barrier $\theta_{\text{margin}}(t)$ for an early-stopped `ACCEPT` trial. (Bottom) Source Observability Certificate ($\mathcal{O}_{\text{cert}}$) response during nominal operation vs. sudden electrode detachment, immediately alerting caregivers via `RESEAT_HEADSET`.*
+![Figure 5: Real-Time Dynamic Sequential Decoding Dynamics](figures/fig5_decoding_dynamics.png)
+*Figure 5: Sequential evidence accumulation and biophysical safety gating. (Top) Accumulated evidence margin ($\Delta_k$) crossing the dynamic confidence barrier $\theta_{\text{margin}}(t)$ for an early-stopped `ACCEPT` decision at repetition 4. (Bottom) Source Observability Certificate ($\mathcal{O}_{\text{cert}}$) response during nominal operation vs. sudden electrode detachment, immediately alerting caregivers via `RESEAT_HEADSET`.*
 
-![Figure 4: Component Ablation & Embedded Hardware Profiling](figures/fig4_ablation_scaling.png)
-*Figure 4: Empirical validation. (a) Systematic component ablation isolating the individual contributions of geometric channel selection, subspace whitening, and the $\mathcal{O}_{\text{cert}}$ gate. (b) Low-power microcontroller execution latency breakdown on ARM Cortex-M7 ($1.48\text{ ms}$) and Raspberry Pi 5 ($0.18\text{ ms}$), demonstrating $<1.2\%$ CPU utilization within typical P300 inter-stimulus intervals.*
+![Figure 6: Low-Power Embedded Execution Latency Profile](figures/fig6_hardware_profiling.png)
+*Figure 6: Low-power embedded execution latency breakdown across ARM Cortex-M7 ($1.48\text{ ms}$), Raspberry Pi 5 ($0.18\text{ ms}$), and host CPU. All configurations consume $<1.2\%$ of the standard $125\text{--}250\text{ ms}$ inter-stimulus interval (ISI), proving real-time wearable viability.*
 
 Critically, **at 4 channels, the Unified Geometry-Gated CASP-X matches the accepted accuracy ($88.4\%$ vs. $88.1\%$) and achieves a superior safety profile ($\text{FAR} = 2.9\%$ vs. $4.2\%$) compared to a standard 8-channel wet-gel system operating under classical decoding.** This confirms that rigorous mathematical gating and biophysical sensor optimization can overcome the hardware deficit of sparse dry arrays.
 
