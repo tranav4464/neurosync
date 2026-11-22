@@ -19,10 +19,10 @@ The included engineering demonstration used 80 synthetic training trials and 40 
 
 | Test condition | Accuracy | Mean repetitions |
 |---|---:|---:|
-| Simulated wet electrodes, 8 channels, fixed six repetitions | 100.0% | 6.00 |
-| Simulated dry electrodes, 8 channels, fixed six repetitions | 47.5% | 6.00 |
-| Simulated dry electrodes, selected channels, fixed six repetitions | 57.5% | 6.00 |
-| Simulated dry electrodes, selected channels, adaptive stopping | 57.5% | 5.88 |
+| Synthetic wet-electrode condition, 8 channels, fixed six repetitions | 100.0% | 6.00 |
+| Synthetic dry-electrode condition, 8 channels, fixed six repetitions | 47.5% | 6.00 |
+| Synthetic dry-electrode condition, selected channels, fixed six repetitions | 57.5% | 6.00 |
+| Synthetic dry-electrode condition, selected channels, adaptive stopping | 57.5% | 5.88 |
 
 These numbers demonstrate that the code runs and exposes the expected noise/accuracy trade-off. They are **not** human-subject, ALS, or clinical results. The results are reproducible with:
 

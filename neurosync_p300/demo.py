@@ -79,7 +79,7 @@ def run_demo(*, output_dir: str | Path, seed: int = 7, n_train_trials: int = 80,
     report = {
         "project": "Neurosync P300 low-channel speller",
         "seed": seed,
-        "simulated_only": True,
+        "software_only": True,
         "train_trials": n_train_trials,
         "test_trials": n_test_trials,
         "symbols": symbols,

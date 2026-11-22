@@ -57,7 +57,7 @@ def generate_synthetic_dataset(
     trial_ids = np.empty(n_epochs, dtype=int)
     repetition_ids = np.empty(n_epochs, dtype=int)
 
-    # Central/parietal sites carry the largest simulated P300 response.
+    # Central/parietal sites carry the largest synthetic P300 response.
     response_gain = np.asarray([0.45, 0.80, 1.00, 0.92, 0.70, 0.45, 0.48, 0.48])
     if n_channels != len(response_gain):
         response_gain = np.linspace(0.45, 1.0, n_channels)

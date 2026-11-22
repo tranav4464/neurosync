@@ -131,7 +131,7 @@ The exact per-run outputs are saved in [evaluation_results.json](results/evaluat
 
 **Can the current low-channel CASP system match a normal wet system?**
 
-**No evidence yet.** In the current hard synthetic benchmark, it did not match the wet reference (even after adding fixed pooled P300 features). It did show a useful safety behavior—fewer wrong accepted outputs and more re-seat requests during simulated contact failure—but its coverage was too low.
+**No evidence yet.** In the current hard synthetic benchmark, it did not match the wet reference (even after adding fixed pooled P300 features). It did show a useful safety behavior—fewer wrong accepted outputs and more re-seat requests during injected contact-failure stress—but its coverage was too low.
 
 The next scientifically valid target is therefore narrower:
 

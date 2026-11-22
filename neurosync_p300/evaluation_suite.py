@@ -74,7 +74,7 @@ def run_evaluation_suite(
 
     paired_conclusions = [record["paired"]["noninferiority"]["conclusion"] for record in records]
     report = {
-        "simulated_only": True,
+        "software_only": True,
         "runs": runs,
         "train_trials_per_run": train_trials,
         "test_trials_per_run": test_trials,
@@ -96,7 +96,7 @@ def run_evaluation_suite(
         "interpretation": [
             "This suite is a software regression test over synthetic signal assumptions, not clinical evidence.",
             "A sparse method must be judged on correct accepted outputs and wrong accepted outputs, not accuracy alone.",
-            "A low re-seat rate in this simulation does not validate a real headset; real contact/impedance data are required.",
+            "A low re-seat rate in this synthetic stress test does not validate a real headset; real contact/impedance data are required.",
         ],
     }
     (output_dir / "evaluation_results.json").write_text(json.dumps(report, indent=2), encoding="utf-8")

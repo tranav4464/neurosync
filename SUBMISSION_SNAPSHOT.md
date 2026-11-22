@@ -35,7 +35,7 @@ We also built a matched wet-reference evaluation framework that measures:
 
 ## Honest results and lessons
 
-Our synthetic stress tests show that safety gating can reduce unsafe accepted outputs during simulated bad contact, but the current sparse dry algorithm does **not** yet meet wet-reference performance. A real-data replication on a public P300 benchmark similarly shows that the lightweight baseline needs improvement before any strong performance claim.
+Our synthetic stress tests show that safety gating can reduce unsafe accepted outputs during injected bad-contact conditions, but the current sparse dry algorithm does **not** yet meet wet-reference performance. A real-data replication on a public P300 benchmark similarly shows that the lightweight baseline needs improvement before any strong performance claim.
 
 This is an important result: reliability and contact quality are the central engineering gap, not just the number of electrodes. We are therefore treating the current prototype as a testable research platform—not a medical device or finished communication system.
 

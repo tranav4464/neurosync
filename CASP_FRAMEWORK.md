@@ -61,7 +61,7 @@ The current `REJECT` rule is an engineering placeholder. A real no-intent classi
 | Baseline decoder | `neurosync_p300/model.py` | Interpretable regularized diagonal LDA. |
 | Safe sequential decoder | `neurosync_p300/decoder.py` | Evidence accumulation plus action state. |
 | End-to-end session path | `neurosync_p300/session.py` | Training-only selection, quality fitting, held-out decoding. |
-| Stress test | `neurosync_p300/casp_demo.py` | Synthetic cap-failure simulation and action metrics. |
+| Stress test | `neurosync_p300/casp_demo.py` | Synthetic cap-failure software stress test and action metrics. |
 
 ## Reproducible engineering result
 

@@ -14,7 +14,7 @@ from .synthetic import generate_synthetic_dataset, inject_contact_artifacts
 def run_casp_demo(*, output_dir: str | Path, seed: int = 23) -> dict:
     """Compare ordinary decoding with CASP on deliberately corrupted dry EEG.
 
-    The result is intentionally labelled simulated: it checks whether the
+    The result is intentionally labelled software-only: it checks whether the
     software changes its action when signal quality drops; it does not validate
     a hardware headset or clinical performance.
     """
@@ -45,7 +45,7 @@ def run_casp_demo(*, output_dir: str | Path, seed: int = 23) -> dict:
     clean_casp = train_and_decode(train, clean_test, decoder_config=config, contact_aware=True, quality_weighting=False)
     payload = {
         "project": "NeuroSync CASP",
-        "simulated_only": True,
+        "software_only": True,
         "central_question": "Can contact-aware sparse decoding preserve accepted-output performance while refusing artifact-heavy data?",
         "selected_channels": casp.selection.names,
         "artifact_fraction": 0.22,
@@ -65,7 +65,7 @@ def run_casp_demo(*, output_dir: str | Path, seed: int = 23) -> dict:
 
 def _write_summary(path: Path, report: dict) -> None:
     rows = [
-        "# NeuroSync CASP simulated stress test",
+        "# NeuroSync CASP synthetic stress test",
         "",
         "> Synthetic engineering result only. It does not establish human, ALS, or clinical performance.",
         "",

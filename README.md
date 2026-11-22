@@ -34,7 +34,7 @@ The demo writes:
 
 - `results/demo/demo_results.json` — machine-readable metrics and selection history.
 - `results/demo/demo_summary.md` — a short human-readable results table.
-- `results/casp_demo/casp_summary.md` — a simulated contact-failure safety report.
+- `results/casp_demo/casp_summary.md` — a synthetic contact-failure safety report.
 
 The current deterministic run selects `Pz, CPz, Fz, Oz`. With the command above, the synthetic comparison is approximately:
 
