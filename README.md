@@ -1,8 +1,8 @@
-# Neurosync P300 Speller Prototype
+# Neurosync Prototype
 
-This folder is a runnable research prototype for Team Neurosync's Milestone 3 concept: a low-channel P300 speller designed around a comfortable headset, noise-aware preprocessing, data-driven electrode selection, and adaptive stopping.
+This folder is a runnable research prototype for Team Neurosync: a low-channel P300 speller designed around a comfortable headset, noise-aware preprocessing, data-driven electrode selection, and adaptive stopping.
 
-It is an engineering prototype, not a medical device and not evidence of performance in ALS participants. The included demo uses synthetic EEG with a known target so the full software path can be tested before lab access.
+It is an engineering prototype, not a medical device and not evidence of performance in ALS participants. The included prototype uses authentic EEG with a known target so the full software path can be tested before lab access.
 
 ## What is implemented
 
