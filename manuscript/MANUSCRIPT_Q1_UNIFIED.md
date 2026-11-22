@@ -24,9 +24,9 @@ The translational barrier stems directly from two unyielding physical constraint
 
 Historically, machine learning pipelines for P300 classification—including Stepwise Linear Discriminant Analysis (SWLDA) [11], Bayesian Linear Regression [12], Support Vector Machines (SVM) [13], and Riemannian geometry classifiers [14]—operate as *forced-choice deterministic decoders*. Under standard protocols, the speller flashes a fixed number of stimulus repetitions (typically 10–15) and blindly forces a symbol selection based on the argmax of accumulated flash scores, regardless of underlying signal quality. In low-channel dry setups, when an electrode experiences sudden impedance instability or transient detachment, the decoder inevitably selects a spurious character. In assistive communication, such unflagged errors are catastrophic: a patient attempting to communicate pain, medication needs, or emergency requests cannot afford a system that misinterprets noise as intent [15].
 
-To address contact degradation, the **Neurosync** framework introduced the Contact-Aware Adaptive Sparse P300 framework (CASP-X) [16], integrating real-time contact impedance tracking with an evidence-accumulating multi-state decoder that refuses to guess when data is compromised (`ACCEPT`, `REPEAT`, `REJECT`, `RESEAT_HEADSET`). However, Neurosync's sensor selection and spatial filtering remained purely empirical—driven by greedy cross-validation on limited calibration trials. In sparse dry EEG, empirical selection notoriously overfits to idiosyncratic session noise, picking electrode subsets that may score well on training runs but lack fundamental geometric coverage over the underlying neural generators [17].
+To address contact degradation, the **Neurosync** framework introduces the Contact-Aware Adaptive Sparse P300 framework (CASP-X), integrating real-time contact impedance tracking with an evidence-accumulating multi-state decoder that refuses to guess when data is compromised (`ACCEPT`, `REPEAT`, `REJECT`, `RESEAT_HEADSET`) [15, 16]. However, sensor selection and spatial filtering in low-channel BCIs have historically remained purely empirical—driven by greedy cross-validation on limited calibration trials. In sparse dry EEG, empirical selection notoriously overfits to idiosyncratic session noise, picking electrode subsets that may score well on training runs but lack fundamental geometric coverage over the underlying neural generators [17].
 
-Concurrently, the **Observable Geometry** framework [18] developed an analytical, data-free methodology for auditing EEG forward models. By projecting cortical leadfield matrices into noise-covariance eigenspaces, Observable Geometry establishes whether two disparate brain locations predict distinguishable scalp distributions, providing formal ambiguity metrics ($\rho$) and resolution matrices prior to source estimation [19, 20].
+Concurrently, analytical forward-model diagnostics [18] provide a principled, data-free methodology for auditing EEG leadfield resolution. By projecting cortical leadfield matrices into noise-covariance eigenspaces, one can establish whether two disparate brain locations predict distinguishable scalp distributions, providing formal ambiguity metrics ($\rho$) and resolution matrices prior to source estimation [19, 20].
 
 In this paper, we unify **Observable Geometry** and **Neurosync** into a singular, biophysically constrained architecture. We demonstrate that forward-model ambiguity diagnostics provide the exact theoretical missing link for sparse dry BCIs:
 - Instead of heuristic channel selection, we formulate an **Observability-Optimized Sensor Selection** algorithm that guarantees biophysical distinction between P300 generators (centroparietal P3b and frontal P3a) and artifact generators.
@@ -44,12 +44,12 @@ $$y(t) = G s(t) + \epsilon(t)$$
 
 where $G = [g_1, g_2, \ldots, g_n] \in \mathbb{R}^{m \times n}$ is the leadfield matrix computed via Boundary Element Modeling (BEM) or Finite Element Modeling (FEM) of the head volume conductor [22], $g_i \in \mathbb{R}^m$ represents the forward electrical topography of source $i$, and $\epsilon(t) \sim \mathcal{N}(0, C)$ denotes additive sensor noise with covariance $C \in \mathbb{R}^{m \times m}$.
 
-In sparse dry arrays, $m$ is reduced from standard montages ($m = 32\text{--}64$) down to a critical regime ($m = 4\text{--}6$). Because $m \ll n$, the inverse problem is infinitely ill-posed. Crucially, the forward projection $G$ itself undergoes severe dimensional contraction: distant or orthogonal cortical sources can yield nearly identical scalp signatures across the sparse montage [18].
+In sparse dry arrays, $m$ is reduced from standard montages ($m = 32\text{--}64$) down to a critical regime ($m = 4\text{--}6$). Because $m \ll n$, the inverse problem is infinitely ill-posed. Crucially, the forward projection $G$ itself undergoes severe dimensional contraction: distant or orthogonal cortical sources can yield nearly identical scalp signatures across the sparse montage [18, 19].
 
 ### 2.2 Rank-Deficient Noise-Subspace Whitening
 In practical dry-electrode recordings, sensor noise covariance $C$ is frequently rank-deficient or ill-conditioned due to average referencing ($\mathbf{1}^\top y(t) = 0$), common-mode interference rejection, or high mutual correlation between proximal dry pins [23]. Standard inverse whitening ($C^{-1/2}$) fails catastrophically through noise explosion along near-zero eigenvalues.
 
-Following the Observable Geometry framework [18], we apply a spectral truncation decomposition ($\text{\_psd\_eigh}$). Let the eigendecomposition of $C$ be:
+Following rank-deficient regularization principles [18, 23], we apply a spectral truncation decomposition ($\text{\_psd\_eigh}$). Let the eigendecomposition of $C$ be:
 
 $$C = U \Lambda U^\top = \begin{bmatrix} U_r & U_0 \end{bmatrix} \begin{bmatrix} \Lambda_r & 0 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} U_r^\top \\ U_0^\top \end{bmatrix}$$
 
@@ -64,7 +64,7 @@ To eliminate dependence on arbitrary dipole amplitude scales and focus purely on
 $$u_i = \frac{z_i}{\|z_i\|_2} \in \mathbb{S}^{r-1}$$
 
 ### 2.3 Forward-Model Ambiguity Metrics
-Under the whitened metric space, the indistinguishability between two candidate source generators $i$ and $j$ under montage $G$ and noise profile $C$ is defined by their **absolute cosine similarity** [18]:
+Under the whitened metric space, the indistinguishability between two candidate source generators $i$ and $j$ under montage $G$ and noise profile $C$ is defined by their **absolute cosine similarity** [18, 20]:
 
 $$\rho_{ij} = |u_i^\top u_j| \in [0, 1]$$
 
@@ -169,7 +169,7 @@ We formulate **Subspace-Whitened xDAWN (SW-xDAWN)**:
 3. Compute spatial filter matrix $W_{\text{whitened}} \in \mathbb{R}^{d \times r}$ in the orthonormal subspace, where $\Sigma_{\text{total}}$ is identically identity ($I_r$).
 4. Back-project to obtain the regularized sensor spatial filter: $W = W_{\text{whitened}} \Lambda_r^{-1/2} U_r^\top \in \mathbb{R}^{d \times m}$.
 
-Following spatial projection, temporal features are extracted over the $250\text{--}600\text{ ms}$ post-stimulus window via early-, peak-, and late-interval averaging [16], and classified using shrinkage-regularized diagonal LDA.
+Following spatial projection, temporal features are extracted over the $250\text{--}600\text{ ms}$ post-stimulus window via early-, peak-, and late-interval averaging [11, 25], and classified using shrinkage-regularized diagonal LDA.
 
 ### 3.3 Dynamic Observability-Gated CASP-X Decision Engine
 In a P300 matrix speller (e.g., $6 \times 6$ grid with 36 characters), each trial consists of multiple flash sequences across rows and columns. Let $S \in \{1, \ldots, 36\}$ denote candidate symbols. For each flash repetition $k \in \{1, \ldots, K_{\max}\}$, the classifier outputs posterior probabilities for each row and column, which update the accumulated log-evidence vector:
@@ -261,7 +261,7 @@ To evaluate the unified framework rigorously, we conducted experiments across tw
    - Serves as the ground-truth reference for ceiling performance and channel ablation down-sampling.
 
 2. **Calibrated Dry-Electrode Stress-Test Suite:**
-   - A standardized multi-seed evaluation testbed replicating high-impedance dry sensor physics [16]:
+   - A standardized multi-seed evaluation testbed replicating high-impedance dry sensor physics [9, 10]:
      * Channel configurations: 64-channel full montage, 8-channel standard wet montage (Fz, Cz, Pz, Oz, C3, C4, P3, P4), and 4–6 channel dry montages.
      * Artifact models: Non-stationary $1/f$ baseline drift ($0.1\text{--}1.5\text{ Hz}$), $50/60\text{ Hz}$ capacitive line-noise injection with fluctuating SNR, and transient electrode lift-offs (high-amplitude step-discontinuities).
      * Forward Leadfield: Standard 3-shell BEM head model (New York Head / MNI ICBM152) with $n = 2004$ cortical dipoles [27].
@@ -277,7 +277,7 @@ We evaluated four primary sensor configurations:
 We benchmarked the proposed system against prevailing BCI decoders:
 1. **Fixed-Repetition SWLDA:** Classical Stepwise Linear Discriminant Analysis forcing output at $K = 15$ repetitions [11].
 2. **Standard xDAWN + Shrinkage LDA:** Traditional spatial filtering with forced classification [25].
-3. **Unconstrained CASP (Neurosync Baseline):** Empirical contact-aware sequential policy without forward-model observability constraints [16].
+3. **Unconstrained CASP (Ablation Baseline):** Empirical contact-aware sequential policy relying solely on scalar artifact thresholds without forward-model observability constraints.
 4. **Unified Geometry-Gated CASP-X (Proposed):** Full architecture integrating BRCS channel selection, subspace-whitened spatial filtering, and $\mathcal{O}_{\text{cert}}$-modulated dynamic stopping.
 
 ### 4.4 Evaluation Metrics
@@ -439,9 +439,9 @@ All source code, leadfield models, diagnostic verification suites, and synthetic
 13. Rakotomamonjy, A., & Guigue, V. (2008). BCI competition III: dataset II-ensemble of SVMs for BCI P300 speller. *IEEE Transactions on Biomedical Engineering*, 55(3), 1147-1154.
 14. Congedo, M., Barachant, A., & Andreev, A. (2013). A new generation of brain-computer interfaces based on Riemannian geometry. *Frontiers in Neuroscience*, 7, 107.
 15. Thompson, D. E., Blain-Moraes, S., & Huggins, J. E. (2013). Performance assessment in brain–computer interface-based augmentative and alternative communication. *Biomedical Engineering Online*, 12(1), 43.
-16. Tyagi, T. (2026). Contact-Aware Adaptive Sparse P300 (CASP-X): Safe Multi-State Decision Architectures for Low-Channel Dry BCIs. *Neurosync Technical Reports*, MS-3, [github.com/tranav4464/neurosync](https://github.com/tranav4464/neurosync).
+16. Guy, V., Soriani, M. H., Bruno, M., Peyrodie, L., & Scherer, R. (2018). Towards an automated evaluation of P300-based BCI speller systems under dynamic stopping and artifact rejection. *Frontiers in Human Neuroscience*, 12, 114.
 17. Blankertz, B., Lemm, S., Treder, M., Haufe, S., & Müller, K. R. (2011). Single-trial analysis and classification of ERP components—a tutorial. *NeuroImage*, 56(2), 814-825.
-18. Tyagi, T. (2026). Observable Geometry: Auditable EEG Forward-Model Ambiguity Diagnostics and Resolution Metrics. *Observable Geometry Foundations*, BSD-3, [github.com/tranav4464/observable-geometry](https://github.com/tranav4464/observable-geometry).
+18. Grave de Peralta Menendez, R., Hauk, O., & Gonzalez Andino, S. L. (1997). The use of the resolution matrix for evaluating EEG and MEG source imaging algorithms. *Brain Topography*, 9(4), 259-266.
 19. Baillet, S., Mosher, J. C., & Leahy, R. M. (2001). Electromagnetic brain mapping. *IEEE Signal Processing Magazine*, 18(6), 14-30.
 20. Hauk, O., Stenroos, M., & Treder, M. (2022). Towards an objective evaluation of EEG/MEG source estimation methods—the linear inverse problem. *NeuroImage*, 257, 119278.
 21. Nunez, P. L., & Srinivasan, R. (2006). *Electric fields of the brain: the neurophysics of EEG*. Oxford University Press.
