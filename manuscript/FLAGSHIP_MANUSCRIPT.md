@@ -7,7 +7,7 @@ montage is useful only if it preserves communication performance and exposes
 failure modes. NeuroSync is a reproducible sparse-P300 framework that separates
 electrode-count feasibility, robustness mechanisms, and dry-electrode
 equivalence. In BNCI 2014-008, an eight-channel active-electrode P300 speller
-cohort of eight people with ALS, A01 froze the method and A02--A08 were locked
+cohort of eight people with ALS, A01 informed the method and A02--A08 were reserved
 for confirmation using the source temporal split. Six training-selected
 channels achieved 92.9% mean held-out character accuracy at ten repetitions,
 compared with 93.6% using eight channels; every confirmation participant
@@ -123,6 +123,6 @@ NeuroSync makes no dry-electrode, home-use, safety, or clinical-benefit claim.
 
 1. Farwell LA, Donchin E. Talking off the top of your head. *Electroencephalogr Clin Neurophysiol*. 1988;70:510--523.
 2. Riccio A, et al. Attention and P300-based BCI performance in people with ALS. *Front Hum Neurosci*. 2013;7:732.
-3. Clements JM, et al. Comparison of dry and gel based electrodes for P300 BCI. *J Neural Eng*. 2016;13:066020.
+3. Clements JM, et al. Applying dynamic data collection to improve dry electrode system performance for a P300-based brain-computer interface. *J Neural Eng*. 2016;13:066018. doi:10.1088/1741-2560/13/6/066018.
 4. Colwell KA, et al. A comparison of online electrode selection methods for P300 BCI. *J Neural Eng*. 2014;11:066012.
 5. Mainsah B, et al. bigP3BCI: An Open, Diverse and Machine Learning Ready P300-based Brain-Computer Interface Dataset. PhysioNet. 2025. doi:10.13026/0byy-ry86.

@@ -1,6 +1,9 @@
 __pycache__/
 *.py[cod]
 .venv/
+build/
+*.egg-info/
+dist/
 
 # Downloaded source EEG and generated experiment outputs stay local.
 data/external/

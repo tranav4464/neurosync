@@ -1,5 +1,8 @@
 # Milestone 3 — Results
 
+> Historical early draft based on a software demonstration. For the current
+> public-data results and NYAS handoff, use [NYAS_SUBMISSION_BRIEF.md](NYAS_SUBMISSION_BRIEF.md).
+
 ## Team information
 
 | Field | Entry |

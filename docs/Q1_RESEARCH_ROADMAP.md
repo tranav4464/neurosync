@@ -1,5 +1,10 @@
 # NeuroSync research audit and route to a strong journal submission
 
+> Historical audit snapshot dated 23 November 2026. The full 13-person
+> bigP3BCI Study A external benchmark and subsequent ablations are documented
+> in [PUBLIC_DATA_BENCHMARK.md](PUBLIC_DATA_BENCHMARK.md) and
+> [SNR_DIVERSITY_ABLATION.md](SNR_DIVERSITY_ABLATION.md).
+
 **Audit date:** 23 November 2026. This is an execution plan and evidence audit, not a claim of journal acceptance.
 
 ## Research question and claim ladder

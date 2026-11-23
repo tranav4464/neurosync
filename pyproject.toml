@@ -11,7 +11,7 @@ dependencies = ["numpy>=1.24,<3"]
 
 [project.optional-dependencies]
 manuscript = ["matplotlib>=3.8,<4", "reportlab>=4.0,<5"]
-public-data = ["scipy>=1.11,<2"]
+public-data = ["scipy>=1.11,<2", "pyedflib>=0.1.42,<1"]
 
 [tool.setuptools.packages.find]
 include = ["neurosync_p300*"]

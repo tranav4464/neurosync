@@ -25,6 +25,7 @@ repetitions, contact-quality actions, and held-out-session performance.
 
 Read the concise [flagship research narrative](docs/FLAGSHIP_RESEARCH_NARRATIVE.md)
 or the traceable [flagship manuscript](manuscript/FLAGSHIP_MANUSCRIPT.md).
+For the NYAS milestone, use the [submission brief](docs/NYAS_SUBMISSION_BRIEF.md).
 
 ## NeuroSync-OG: the testable mechanism layer
 
@@ -127,6 +128,7 @@ python scripts/run_demo.py
 python scripts/run_casp_demo.py
 python scripts/run_evaluation.py
 python -m scripts.run_bnci_008_benchmark --directory data/external/bnci_008_2014
+python -m scripts.run_bigp3bci_benchmark --train TRAIN.edf --test TEST.edf
 python scripts/run_session.py --train train.npz --test held_out.npz --forward-model forward_model.npz
 ```
 

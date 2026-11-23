@@ -52,7 +52,7 @@ The hypothesis is **not currently supported**. It is deliberately falsifiable.
 7. Symbol evidence accumulation and out-of-fold decision calibration.
 8. Contact-quality gating and `ACCEPT`, `REPEAT`, `REJECT`, and `RESEAT_HEADSET` actions.
 9. Matched wet-reference benchmark and explicit non-inferiority screen.
-10. Deterministic synthetic stress tests plus 12 automated software tests.
+10. Deterministic synthetic stress tests plus automated software tests (currently 26).
 
 ## Algorithm ablation record
 

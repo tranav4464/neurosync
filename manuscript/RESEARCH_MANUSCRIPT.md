@@ -1,5 +1,7 @@
 # NeuroSync-OG: Geometry-Constrained Contact-Adaptive Selective Decoding for Sparse P300 BCIs
 
+> Historical working draft. The current submission narrative is [FLAGSHIP_MANUSCRIPT.md](FLAGSHIP_MANUSCRIPT.md). This draft predates the complete 13-person external analysis.
+
 ## Abstract
 
 Low-channel EEG could reduce P300 BCI setup burden, but sensor reduction and variable contact can increase wrong outputs. NeuroSync-OG combines training-only montage selection, full-covariance spatiotemporal decoding, forward-model observability, contact-quality weighting, and selective `ACCEPT`, `REPEAT`, `REJECT`, and `RESEAT_HEADSET` actions. We evaluated the electrode-count hypothesis on BNCI 2014-008, comprising eight participants with ALS and an eight-channel active-electrode P300 speller. Subject A01 was used to freeze the 100--800 ms feature interval, temporal downsampling, and covariance shrinkage; A02--A08 formed a locked confirmation cohort using the official first-15-character calibration and final-20-character feedback split. At ten repetitions, six training-selected channels achieved 92.9% mean held-out character accuracy versus 93.6% for eight channels. All seven confirmation participants reached at least 85% with six channels. The paired six-minus-eight difference was -0.7 percentage points (participant-bootstrap 95% interval -2.86 to +1.43), meeting a -5-point engineering non-inferiority margin. External evaluation on BCI Competition III produced lower and heterogeneous results, preventing a universal-performance claim. The findings support sparse active-electrode feasibility in the ALS cohort; dry-electrode equivalence, contact-robust safety, and prospective clinical utility remain untested.
@@ -53,7 +55,7 @@ NeuroSync-OG provides evidence that six participant-selected channels can retain
 1. Farwell LA, Donchin E. Talking off the top of your head. *Electroencephalogr Clin Neurophysiol*. 1988;70:510--523.
 2. Donchin E, Spencer KM, Wijesinghe R. The mental prosthesis. *IEEE Trans Rehabil Eng*. 2000;8:174--179.
 3. Wolpaw JR, et al. Brain-computer interfaces for communication and control. *Clin Neurophysiol*. 2002;113:767--791.
-4. Clements JM, et al. Comparison of dry and gel based electrodes for P300 BCI. *J Neural Eng*. 2016;13:066020.
+4. Clements JM, et al. Applying dynamic data collection to improve dry electrode system performance for a P300-based brain-computer interface. *J Neural Eng*. 2016;13:066018. doi:10.1088/1741-2560/13/6/066018.
 5. Rezeika A, et al. A review of P300-based BCI applications. *J Clin Med*. 2018;7:419.
 6. Throckmorton CS, et al. Performance of a P300-based BCI using four electrodes. *Clin Neurophysiol*. 2013;124:2300--2307.
 7. Colwell KA, et al. A comparison of online electrode selection methods for P300 BCI. *J Neural Eng*. 2014;11:066012.
