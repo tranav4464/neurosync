@@ -15,10 +15,12 @@ from .geometry import (
     whitened_unit_signatures,
     absolute_cosine_ambiguity,
     compute_observability_certificate,
+    audit_single_channel_dropout,
     get_canonical_p300_proxy,
     get_canonical_p300_leadfield,
 )
 from .spatial import TemplateSpatialFilter, SubspaceWhitenedSpatialFilter
+from .forward_model import ForwardModel, load_forward_model
 
 __all__ = [
     "EEGDataset",
@@ -45,9 +47,12 @@ __all__ = [
     "whitened_unit_signatures",
     "absolute_cosine_ambiguity",
     "compute_observability_certificate",
+    "audit_single_channel_dropout",
     "get_canonical_p300_proxy",
     "get_canonical_p300_leadfield",
     "TemplateSpatialFilter",
     "SubspaceWhitenedSpatialFilter",
+    "ForwardModel",
+    "load_forward_model",
 ]
 

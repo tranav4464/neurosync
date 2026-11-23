@@ -7,6 +7,7 @@ from neurosync_p300.geometry import (
     whitened_unit_signatures,
     absolute_cosine_ambiguity,
     compute_observability_certificate,
+    audit_single_channel_dropout,
     get_canonical_p300_proxy,
     get_canonical_p300_leadfield,
 )
@@ -46,6 +47,17 @@ class TestGeometry(unittest.TestCase):
         np.testing.assert_allclose(
             get_canonical_p300_proxy(channels),
             get_canonical_p300_leadfield(channels),
+        )
+
+    def test_single_channel_dropout_audit_is_complete(self):
+        channels = ["Pz", "CPz", "Oz", "Fz"]
+        report = audit_single_channel_dropout(
+            get_canonical_p300_proxy(channels), np.eye(4), channels
+        )
+        self.assertEqual(len(report["single_channel_dropouts"]), 4)
+        self.assertEqual(
+            {item["dropped_channel"] for item in report["single_channel_dropouts"]},
+            set(channels),
         )
 
 

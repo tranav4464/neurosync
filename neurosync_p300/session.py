@@ -4,7 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 
-from .channel_selection import ChannelSelectionResult, forward_select_channels
+import numpy as np
+
+from .channel_selection import (
+    ChannelSelectionResult,
+    biophysically_regularized_channel_selection,
+    forward_select_channels,
+)
 from .data import EEGDataset
 from .decoder import DecodedTrial, DecoderConfig, decode_dataset, summarize_decoding
 from .features import extract_features
@@ -14,6 +20,7 @@ from .quality import ContactQualityGate, apply_channel_quality
 from .calibration import DecisionCalibration, calibrate_decision_oof
 from .spatial import TemplateSpatialFilter
 from .feature_selection import StandardizedMeanFeatureSelector
+from .forward_model import ForwardModel
 
 
 @dataclass
@@ -38,6 +45,7 @@ def train_and_decode(
     spatial_filter_components: int = 0,
     sparse_feature_count: int = 0,
     calibrate_temperature: bool = True,
+    forward_model: ForwardModel | None = None,
 ) -> SessionResult:
     """Preprocess, select channels, fit LDA, and decode a held-out session."""
 
@@ -50,15 +58,45 @@ def train_and_decode(
 
     train_clean = preprocess_epochs(train.epochs, train.sampling_rate)
     test_clean = preprocess_epochs(test.epochs, test.sampling_rate)
-    selection = forward_select_channels(
-        train_clean,
-        train.labels,
-        train.trial_ids,
-        train.channel_names,
-        train.sampling_rate,
-        min_channels=min_channels,
-        max_channels=max_channels,
-    )
+    train_quality_full = None
+    test_quality_full = None
+    if contact_aware:
+        quality_gate = ContactQualityGate().fit(train.epochs, train.sampling_rate)
+        train_quality_full = quality_gate.assess(train.epochs, train.sampling_rate)
+        test_quality_full = quality_gate.assess(test.epochs, test.sampling_rate)
+    if forward_model is not None:
+        aligned_leadfield = forward_model.validate().align(train.channel_names)
+        channel_reliability = (
+            np.median(train_quality_full.channel_quality, axis=0)
+            if train_quality_full is not None
+            else np.ones(train.n_channels)
+        )
+        selection = biophysically_regularized_channel_selection(
+            train_clean,
+            train.labels,
+            train.trial_ids,
+            train.channel_names,
+            train.sampling_rate,
+            leadfield=aligned_leadfield,
+            channel_reliability=channel_reliability,
+            geometry_source=forward_model.provenance.get("model", "external_forward_model"),
+            target_indices=list(forward_model.target_indices),
+            artifact_indices=list(forward_model.artifact_indices) or None,
+            min_channels=min_channels,
+            max_channels=max_channels,
+        )
+        selected_leadfield = aligned_leadfield[selection.indices, :]
+    else:
+        selection = forward_select_channels(
+            train_clean,
+            train.labels,
+            train.trial_ids,
+            train.channel_names,
+            train.sampling_rate,
+            min_channels=min_channels,
+            max_channels=max_channels,
+        )
+        selected_leadfield = None
     selected_train = train_clean[:, selection.indices, :]
     selected_test = test_clean[:, selection.indices, :]
     if spatial_filter_components:
@@ -73,13 +111,16 @@ def train_and_decode(
         train_features = selector.fit(train_features, train.labels).transform(train_features)
         test_features = selector.transform(test_features)
     test_quality = None
-    if contact_aware:
-        quality_gate = ContactQualityGate().fit(train.epochs, train.sampling_rate)
-        train_quality = quality_gate.assess(train.epochs, train.sampling_rate).select_channels(selection.indices)
-        test_quality = quality_gate.assess(test.epochs, test.sampling_rate).select_channels(selection.indices)
+    if contact_aware and train_quality_full is not None and test_quality_full is not None:
+        train_quality = train_quality_full.select_channels(selection.indices)
+        test_quality = test_quality_full.select_channels(selection.indices)
         if quality_weighting:
-            train_features = apply_channel_quality(train_features, train_quality.channel_quality)
-            test_features = apply_channel_quality(test_features, test_quality.channel_quality)
+            if spatial_filter_components:
+                train_features *= np.sqrt(train_quality.epoch_quality)[:, None]
+                test_features *= np.sqrt(test_quality.epoch_quality)[:, None]
+            else:
+                train_features = apply_channel_quality(train_features, train_quality.channel_quality)
+                test_features = apply_channel_quality(test_features, test_quality.channel_quality)
     calibration = None
     if calibrate_temperature:
         calibration = calibrate_decision_oof(
@@ -95,13 +136,17 @@ def train_and_decode(
             margin_threshold=calibration.margin_threshold,
         )
     model = DiagonalLDA(shrinkage=0.20).fit(train_features, train.labels)
+    selected_test = test.select_channels(selection.indices)
     decoded = decode_dataset(
         model,
         test_features,
-        test,
+        selected_test,
         config=decoder_config,
         fixed_repetitions=fixed_repetitions,
         quality=test_quality,
+        leadfield=selected_leadfield,
+        target_indices=list(forward_model.target_indices) if forward_model is not None else None,
+        artifact_indices=(list(forward_model.artifact_indices) or None) if forward_model is not None else None,
     )
     return SessionResult(selection, model, decoded, summarize_decoding(decoded), calibration)
 

@@ -25,6 +25,9 @@ class DecoderConfig:
     reject_confidence_threshold: float = 0.35
     min_observability_certificate: float = 0.15
     max_worst_case_ambiguity: float = 0.88
+    quality_evidence_power: float = 1.0
+    observability_evidence_power: float = 1.0
+    minimum_evidence_weight: float = 0.15
 
 
 @dataclass
@@ -41,6 +44,7 @@ class DecodedTrial:
     bad_repetitions: int = 0
     true_symbol: str | None = None
     observability_certificate: float = 1.0
+    mean_evidence_weight: float = 1.0
 
 
 def _softmax(scores: np.ndarray, temperature: float) -> np.ndarray:
@@ -59,6 +63,8 @@ def decode_dataset(
     fixed_repetitions: int | None = None,
     quality: QualityAssessment | None = None,
     leadfield: np.ndarray | None = None,
+    target_indices: list[int] | None = None,
+    artifact_indices: list[int] | None = None,
 ) -> list[DecodedTrial]:
     """Decode one symbol per trial from flash-level model scores.
 
@@ -108,6 +114,7 @@ def decode_dataset(
         bad_repetitions = 0
         repetition_quality: list[float] = []
         repetition_certs: list[float] = []
+        repetition_weights: list[float] = []
         action = "REPEAT"
 
         for repetition in repetition_values[:max_rep]:
@@ -119,11 +126,19 @@ def decode_dataset(
             current_cert = 1.0
             if leadfield is not None and len(current) > 1:
                 cur_epochs = dataset.epochs[current]
-                # Noise covariance across current repetition
-                rep_cov = np.cov(cur_epochs.mean(axis=-1).T) if cur_epochs.shape[1] > 1 else np.eye(1)
+                # Estimate sensor noise from the prestimulus baseline rather
+                # than from the evoked-response interval.
+                baseline_samples = max(2, int(round(0.2 * dataset.sampling_rate)))
+                baseline = cur_epochs[..., :baseline_samples].transpose(1, 0, 2).reshape(cur_epochs.shape[1], -1)
+                rep_cov = np.cov(baseline) if cur_epochs.shape[1] > 1 else np.eye(1)
                 if rep_cov.ndim < 2 or rep_cov.shape[0] != leadfield.shape[0]:
                     rep_cov = np.eye(leadfield.shape[0])
-                geo_report = compute_observability_certificate(leadfield, rep_cov)
+                geo_report = compute_observability_certificate(
+                    leadfield,
+                    rep_cov,
+                    target_indices=target_indices,
+                    artifact_indices=artifact_indices,
+                )
                 current_cert = geo_report.certificate
                 if (
                     geo_report.certificate < config.min_observability_certificate
@@ -132,11 +147,18 @@ def decode_dataset(
                     bad_repetitions += 1
             repetition_certs.append(current_cert)
 
+            evidence_weight = max(
+                config.minimum_evidence_weight,
+                float(np.clip(current_quality, 0.0, 1.0)) ** config.quality_evidence_power
+                * float(np.clip(current_cert, 0.0, 1.0)) ** config.observability_evidence_power,
+            )
+            repetition_weights.append(evidence_weight)
+
             if current_quality < config.minimum_epoch_quality:
                 bad_repetitions += 1
             else:
                 for index in current:
-                    evidence[str(dataset.symbols[index])] += float(flash_scores[index])
+                    evidence[str(dataset.symbols[index])] += evidence_weight * float(flash_scores[index])
             ordered = sorted(evidence.items(), key=lambda item: item[1], reverse=True)
             probabilities = _softmax(np.asarray([score for _, score in ordered]), config.temperature)
             confidence = float(probabilities[0])
@@ -169,6 +191,7 @@ def decode_dataset(
         ordered = sorted(evidence.items(), key=lambda item: item[1], reverse=True)
         mean_quality = float(np.mean(repetition_quality)) if repetition_quality else 0.0
         mean_cert = float(np.mean(repetition_certs)) if repetition_certs else 1.0
+        mean_evidence_weight = float(np.mean(repetition_weights)) if repetition_weights else 1.0
         if bad_repetitions >= config.reseat_after_bad_repetitions:
             action = "RESEAT_HEADSET"
         elif fixed_repetitions is not None:
@@ -191,6 +214,7 @@ def decode_dataset(
             bad_repetitions=bad_repetitions,
             true_symbol=true_symbol,
             observability_certificate=mean_cert,
+            mean_evidence_weight=mean_evidence_weight,
         ))
     return decoded
     return decoded

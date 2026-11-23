@@ -155,6 +155,47 @@ def compute_observability_certificate(
     )
 
 
+def audit_single_channel_dropout(
+    leadfield: np.ndarray,
+    noise_cov: np.ndarray,
+    channel_names: list[str],
+    *,
+    target_indices: list[int] | None = None,
+    artifact_indices: list[int] | None = None,
+) -> dict:
+    """Measure observability sensitivity to every single-channel loss.
+
+    The audit identifies geometry-critical sensors before deployment.  Values
+    are diagnostics conditional on the supplied forward model and covariance,
+    not probabilities of decoding success.
+    """
+    leadfield = np.asarray(leadfield, dtype=float)
+    noise_cov = np.asarray(noise_cov, dtype=float)
+    if leadfield.shape[0] != len(channel_names) or noise_cov.shape != (len(channel_names), len(channel_names)):
+        raise ValueError("leadfield, covariance, and channel_names must describe the same montage")
+    full = compute_observability_certificate(
+        leadfield, noise_cov, target_indices=target_indices, artifact_indices=artifact_indices
+    )
+    dropouts = []
+    for dropped, name in enumerate(channel_names):
+        keep = [index for index in range(len(channel_names)) if index != dropped]
+        report = compute_observability_certificate(
+            leadfield[keep],
+            noise_cov[np.ix_(keep, keep)],
+            target_indices=target_indices,
+            artifact_indices=artifact_indices,
+        )
+        dropouts.append({
+            "dropped_channel": name,
+            "certificate": report.certificate,
+            "certificate_change": round(report.certificate - full.certificate, 4),
+            "worst_case_ambiguity": report.worst_case_ambiguity,
+            "supported_rank": report.supported_rank,
+        })
+    dropouts.sort(key=lambda item: (item["certificate"], -item["worst_case_ambiguity"]))
+    return {"full_montage": full.__dict__, "single_channel_dropouts": dropouts}
+
+
 # Illustrative 10-20 montage prior for examples and tests. These values are
 # not derived from an anatomical forward model.
 # Source 0: Centroparietal P3b generator (bilateral temporoparietal / parietal)

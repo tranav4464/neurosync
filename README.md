@@ -14,15 +14,20 @@ performance for people with ALS. The framework makes the target measurable:
 correct accepted outputs, wrong accepted outputs, coverage, repetitions,
 contact-quality actions, and held-out-session performance.
 
-## What is novel here
+## NeuroSync-OG: the research innovation
 
-CASP-X (Contact-Aware Adaptive Sparse P300) combines four testable design
-ideas in one evaluation protocol:
+NeuroSync-OG combines Observable Geometry with Contact-Aware Adaptive Sparse
+P300 decoding. Conventional systems ask whether a classifier is confident;
+NeuroSync-OG also asks whether the signal is trustworthy and whether the
+remaining electrode configuration can still distinguish target and nuisance
+source signatures. It combines:
 
-1. training-only 4--6-channel selection;
+1. training-only 4--6-channel selection jointly regularized by fold stability,
+   contact reliability, forward observability, and target–artifact ambiguity;
 2. transparent P300 features and a regularized-LDA baseline;
 3. out-of-fold calibration of evidence, confidence, and stopping thresholds;
-4. an explicit `ACCEPT`, `REPEAT`, `REJECT`, or `RESEAT_HEADSET` action rather
+4. geometry- and quality-weighted sequential evidence;
+5. an explicit `ACCEPT`, `REPEAT`, `REJECT`, or `RESEAT_HEADSET` action rather
    than forcing every uncertain trial into a character.
 
 The repository also contains linear-algebra tools for inspecting a **supplied,
@@ -33,8 +38,8 @@ clinical safety.
 
 ## Current evidence
 
-The current real-data result is deliberately reported as a baseline failure,
-not a headline performance claim. On a within-subject held-out-character split
+The current real-data result establishes a transparent improvement benchmark.
+On a within-subject held-out-character split
 of the labelled BCI Competition III Dataset II Subject A training recording,
 the compact 4-channel LDA baseline achieved **16.0% character accuracy**.
 The eight-channel sparse-feature ablation also achieved **16.0%**. See the
@@ -84,6 +89,7 @@ Key documents:
 - [Real-data replication log](docs/REAL_DATA_REPLICATION_LOG.md): verified public-data baseline.
 - [Evaluation review](docs/EVALUATION_AND_IMPROVEMENT_REVIEW.md): controlled stress-test results and failure analysis.
 - [Clinical translation protocol](docs/CLINICAL_TRANSLATION_PROTOCOL.md): future validation plan, not a clinical claim.
+- [NeuroSync-OG method](docs/NEUROSYNC_OG_METHOD.md): equations, forward-model interface, and required ablations.
 
 ## Run the software
 
@@ -94,6 +100,7 @@ python -m unittest discover -s tests -v
 python scripts/run_demo.py
 python scripts/run_casp_demo.py
 python scripts/run_evaluation.py
+python scripts/run_session.py --train train.npz --test held_out.npz --forward-model forward_model.npz
 ```
 
 For BCI Competition III Dataset II, follow the file-layout instructions in

@@ -1,4 +1,4 @@
-# NeuroSync: a preregisterable framework for safe sparse P300 BCI evaluation
+# NeuroSync-OG: Geometry-Constrained Contact-Adaptive Selective Decoding for Sparse P300 BCIs
 
 ## Abstract
 
@@ -12,13 +12,13 @@ P300 spellers identify an attended rare stimulus in an oddball sequence [1--3]. 
 
 > Can a 4--6-channel dry or semi-dry P300 system attain pre-specified non-inferior correct accepted-output performance relative to an 8-channel wet reference, while constraining wrong outputs and user burden?
 
-NeuroSync provides a testable integration: training-only selection, inspectable decoding, calibration-aware sequential evidence, and explicit recovery states. It requires a study to report the full trade-off: correct and wrong outputs, abstention, repetitions, contact failure, comfort, setup time, and cost.
+NeuroSync-OG provides a testable integration: training-only selection, inspectable decoding, calibration-aware sequential evidence, measured forward-model geometry, and explicit recovery states. Its distinctive contribution is to treat spatial distinguishability as a time-varying reliability input rather than a static montage assumption. It requires a study to report the full trade-off: correct and wrong outputs, abstention, repetitions, contact failure, comfort, setup time, and cost.
 
 ## 2. Gap and framework
 
 P300 BCI literature covers stimulus presentation, classifiers, and communication metrics [1--3,5]. Small posterior/central montages can work in some cohorts, but channel identity and session transfer need prospective verification [6,7]. Dynamic stopping improves speed only when evidence is calibrated [8]. Wet/dry comparisons show that extra flashes may not fully compensate for poor contact or slow-band noise [4]. The unfilled gap is an evaluation that treats wrong emitted characters, abstention, recovery, and setup burden as co-primary outcomes. Accepted-output accuracy alone can be inflated by refusing difficult trials; coverage alone can hide unsafe wrong outputs.
 
-Each epoch is baseline corrected and band-limited. Interpretable waveform and pooled P300-window features are scored by a regularized diagonal LDA. Channels are selected with training-character folds only. Calibration-relative features quantify slow-band energy, line-noise energy, and transient amplitude. Evidence is accumulated by symbol for a limited number of repetitions. `ACCEPT` requires training-calibrated confidence, margin, and stability. Poor quality can yield `REPEAT` or `RESEAT_HEADSET`; exhausted weak evidence yields `REJECT` and fallback communication. These are engineering actions, not validated clinical controls or a substitute for impedance measurement.
+Each epoch is baseline corrected and band-limited. Interpretable waveform and pooled P300-window features are scored by a regularized diagonal LDA. Channels are selected with training-character folds only. The proposed montage objective combines cross-validated balanced accuracy, fold stability, median contact reliability, forward observability, and target–artifact ambiguity. Calibration-relative features quantify slow-band energy, line-noise energy, and transient amplitude. Symbol evidence is multiplied by quality and observability reliability before accumulation. `ACCEPT` requires training-calibrated confidence, margin, stability, quality, and observability. Poor quality can yield `REPEAT` or `RESEAT_HEADSET`; exhausted weak evidence yields `REJECT` and fallback communication. These are engineering actions, not validated clinical controls or a substitute for impedance measurement.
 
 For an externally supplied measured leadfield and matched noise covariance, the code computes a whitened topographic-ambiguity diagnostic. The included 10--20 coefficient table is a pedagogical proxy, not a participant-specific BEM/FEM model. It cannot establish source localisation, predict electrode detachment, or prove a false-accept bound.
 

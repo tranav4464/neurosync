@@ -17,6 +17,8 @@ class ChannelSelectionResult:
     names: list[str]
     cross_validated_balanced_accuracy: float
     history: list[dict] = field(default_factory=list)
+    objective_score: float | None = None
+    geometry_source: str = "none"
 
 
 def _balanced_accuracy(y_true: np.ndarray, y_pred: np.ndarray) -> float:
@@ -54,6 +56,22 @@ def _score_subset(
         model.fit(features[train_idx], labels[train_idx])
         scores.append(_balanced_accuracy(labels[validation_idx], model.predict(features[validation_idx])))
     return float(np.mean(scores))
+
+
+def _score_subset_stats(
+    epochs: np.ndarray,
+    labels: np.ndarray,
+    trial_ids: np.ndarray,
+    sampling_rate: float,
+    subset: list[int],
+    folds: list[tuple[np.ndarray, np.ndarray]],
+) -> tuple[float, float]:
+    features = extract_features(epochs[:, subset, :], sampling_rate)
+    scores = []
+    for train_idx, validation_idx in folds:
+        model = DiagonalLDA().fit(features[train_idx], labels[train_idx])
+        scores.append(_balanced_accuracy(labels[validation_idx], model.predict(features[validation_idx])))
+    return float(np.mean(scores)), float(np.std(scores))
 
 
 def forward_select_channels(
@@ -130,6 +148,12 @@ def biophysically_regularized_channel_selection(
     n_splits: int = 3,
     beta_observability: float = 0.15,
     beta_ambiguity: float = 0.10,
+    beta_instability: float = 0.10,
+    beta_contact: float = 0.10,
+    channel_reliability: np.ndarray | None = None,
+    geometry_source: str | None = None,
+    target_indices: list[int] | None = None,
+    artifact_indices: list[int] | None = None,
     min_improvement: float = 0.002,
     seed: int = 7,
 ) -> ChannelSelectionResult:
@@ -142,6 +166,18 @@ def biophysically_regularized_channel_selection(
         raise ValueError("channel limits must fit the available channels")
     if leadfield is None:
         leadfield = get_canonical_p300_proxy(channel_names)
+        geometry_source = geometry_source or "illustrative_proxy"
+    else:
+        leadfield = np.asarray(leadfield, dtype=float)
+        if leadfield.ndim != 2 or leadfield.shape[0] != len(channel_names):
+            raise ValueError("leadfield rows must match channel_names")
+        geometry_source = geometry_source or "external_forward_model"
+    if channel_reliability is None:
+        channel_reliability = np.ones(len(channel_names), dtype=float)
+    channel_reliability = np.asarray(channel_reliability, dtype=float)
+    if channel_reliability.shape != (len(channel_names),):
+        raise ValueError("channel_reliability must have one value per channel")
+    channel_reliability = np.clip(channel_reliability, 0.0, 1.0)
 
     folds = _trial_folds(np.asarray(trial_ids), n_splits, seed)
     selected: list[int] = []
@@ -153,25 +189,36 @@ def biophysically_regularized_channel_selection(
         candidate_scores = []
         for candidate in candidates:
             subset = selected + [candidate]
-            empirical_acc = _score_subset(epochs, labels, trial_ids, sampling_rate, subset, folds)
+            empirical_acc, fold_instability = _score_subset_stats(
+                epochs, labels, trial_ids, sampling_rate, subset, folds
+            )
             
             # Compute geometric observability for candidate subset
             sub_g = leadfield[subset, :]
-            sub_cov = np.cov(epochs[:, subset, :].mean(axis=-1).T) if len(subset) > 1 else np.eye(1)
+            baseline_samples = max(2, int(round(0.2 * sampling_rate)))
+            baseline = epochs[:, subset, :baseline_samples].transpose(1, 0, 2).reshape(len(subset), -1)
+            sub_cov = np.cov(baseline) if len(subset) > 1 else np.eye(1)
             if sub_cov.ndim < 2:
                 sub_cov = np.eye(len(subset))
-            report = compute_observability_certificate(sub_g, sub_cov)
+            report = compute_observability_certificate(
+                sub_g,
+                sub_cov,
+                target_indices=target_indices,
+                artifact_indices=artifact_indices,
+            )
             
             # Biophysically regularized objective
             regularized_score = (
                 empirical_acc
                 + beta_observability * report.certificate
                 - beta_ambiguity * report.worst_case_ambiguity
+                - beta_instability * fold_instability
+                - beta_contact * (1.0 - float(np.mean(channel_reliability[subset])))
             )
-            candidate_scores.append((regularized_score, empirical_acc, report, candidate))
+            candidate_scores.append((regularized_score, empirical_acc, fold_instability, report, candidate))
 
-        best_reg_score, best_emp_acc, best_rep, best_candidate = max(
-            candidate_scores, key=lambda item: (item[0], item[1], -item[3])
+        best_reg_score, best_emp_acc, best_instability, best_rep, best_candidate = max(
+            candidate_scores, key=lambda item: (item[0], item[1], -item[4])
         )
         improvement = best_reg_score - previous_score if np.isfinite(previous_score) else np.inf
 
@@ -182,8 +229,11 @@ def biophysically_regularized_channel_selection(
                 "channels": [channel_names[i] for i in selected] + [channel_names[best_candidate]],
                 "regularized_score": round(float(best_reg_score), 6),
                 "empirical_accuracy": round(float(best_emp_acc), 6),
+                "fold_instability": round(float(best_instability), 6),
+                "mean_contact_reliability": round(float(np.mean(channel_reliability[selected + [best_candidate]])), 6),
                 "observability_certificate": best_rep.certificate,
                 "worst_case_ambiguity": best_rep.worst_case_ambiguity,
+                "geometry_source": geometry_source,
                 "accepted": False,
             })
             break
@@ -195,8 +245,11 @@ def biophysically_regularized_channel_selection(
             "channels": [channel_names[i] for i in selected],
             "regularized_score": round(float(best_reg_score), 6),
             "empirical_accuracy": round(float(best_emp_acc), 6),
+            "fold_instability": round(float(best_instability), 6),
+            "mean_contact_reliability": round(float(np.mean(channel_reliability[selected])), 6),
             "observability_certificate": best_rep.certificate,
             "worst_case_ambiguity": best_rep.worst_case_ambiguity,
+            "geometry_source": geometry_source,
             "accepted": True,
         })
         previous_score = best_reg_score
@@ -207,6 +260,8 @@ def biophysically_regularized_channel_selection(
         names=[channel_names[i] for i in selected],
         cross_validated_balanced_accuracy=float(final_emp_acc),
         history=history,
+        objective_score=float(previous_score),
+        geometry_source=str(geometry_source),
     )
 
 
