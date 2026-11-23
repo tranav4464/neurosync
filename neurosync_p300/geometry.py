@@ -1,9 +1,9 @@
-"""Biophysical forward-model geometry and observability diagnostics for Neurosync.
+"""Geometry diagnostics for *measured* EEG forward models.
 
-Bridges Observable Geometry's analytical forward-model ambiguity tools into
-the Neurosync dry-electrode P300 pipeline. Provides noise-subspace whitening,
-rank-deficient PSD eigendecomposition, absolute cosine ambiguity metrics,
-and the Source Observability Certificate (O_cert).
+The linear-algebra routines in this module are valid for a supplied leadfield
+and noise covariance. The bundled 10--20 table is a pedagogical montage
+*proxy*, not an individual BEM/FEM forward model, impedance measurement, or
+clinical safety certificate.
 """
 
 from __future__ import annotations
@@ -155,7 +155,8 @@ def compute_observability_certificate(
     )
 
 
-# Standard canonical 10-20 electrode projections for key cortical dipoles
+# Illustrative 10-20 montage prior for examples and tests. These values are
+# not derived from an anatomical forward model.
 # Source 0: Centroparietal P3b generator (bilateral temporoparietal / parietal)
 # Source 1: Frontal P3a generator (anterior cingulate / medial prefrontal)
 # Source 2: Ocular artifact generator (corneo-retinal blink dipole)
@@ -180,10 +181,10 @@ _CANONICAL_1020_COEFFICIENTS: dict[str, list[float]] = {
 }
 
 
-def get_canonical_p300_leadfield(channel_names: list[str]) -> np.ndarray:
-    """Construct canonical forward leadfield projection G for given 10-20 channel names.
+def get_canonical_p300_proxy(channel_names: list[str]) -> np.ndarray:
+    """Return an illustrative channel-name proxy, not a physical leadfield.
 
-    Returns a matrix G of shape (len(channel_names), 4):
+    Returns a matrix of shape ``(len(channel_names), 4)`` for code examples.
       Col 0: P3b (Parietal ERP target)
       Col 1: P3a (Frontal ERP target)
       Col 2: Ocular artifact (Blinks)
@@ -203,3 +204,8 @@ def get_canonical_p300_leadfield(channel_names: list[str]) -> np.ndarray:
             else:
                 rows.append([0.50, 0.50, 0.30, 0.30])
     return np.array(rows, dtype=float)
+
+
+def get_canonical_p300_leadfield(channel_names: list[str]) -> np.ndarray:
+    """Deprecated alias for :func:`get_canonical_p300_proxy`."""
+    return get_canonical_p300_proxy(channel_names)

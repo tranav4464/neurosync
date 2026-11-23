@@ -7,6 +7,7 @@ from neurosync_p300.geometry import (
     whitened_unit_signatures,
     absolute_cosine_ambiguity,
     compute_observability_certificate,
+    get_canonical_p300_proxy,
     get_canonical_p300_leadfield,
 )
 
@@ -39,6 +40,13 @@ class TestGeometry(unittest.TestCase):
         self.assertGreaterEqual(report.worst_case_ambiguity, 0.0)
         self.assertLessEqual(report.worst_case_ambiguity, 1.0)
         self.assertEqual(report.supported_rank, 4)
+
+    def test_proxy_alias_is_explicit_and_backward_compatible(self):
+        channels = ["Pz", "CPz", "Oz", "Fz"]
+        np.testing.assert_allclose(
+            get_canonical_p300_proxy(channels),
+            get_canonical_p300_leadfield(channels),
+        )
 
 
 if __name__ == "__main__":

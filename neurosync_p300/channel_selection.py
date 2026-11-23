@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from .features import extract_features
-from .geometry import compute_observability_certificate, get_canonical_p300_leadfield
+from .geometry import compute_observability_certificate, get_canonical_p300_proxy
 from .model import DiagonalLDA
 
 
@@ -133,16 +133,15 @@ def biophysically_regularized_channel_selection(
     min_improvement: float = 0.002,
     seed: int = 7,
 ) -> ChannelSelectionResult:
-    """Select a compact 4-6 channel montage regularized by forward-model observability.
+    """Select a compact montage with an optional geometry-proxy diagnostic.
 
-    Unifies empirical cross-validation accuracy with Observable Geometry's
-    Source Observability Certificate and ambiguity penalty, eliminating channels
-    that artificially overfit to transient session noise or ocular artifacts.
+    The built-in channel-name table is a research heuristic, not an anatomical
+    forward model. It cannot certify source distinction or clinical safety.
     """
     if not 1 <= min_channels <= max_channels <= len(channel_names):
         raise ValueError("channel limits must fit the available channels")
     if leadfield is None:
-        leadfield = get_canonical_p300_leadfield(channel_names)
+        leadfield = get_canonical_p300_proxy(channel_names)
 
     folds = _trial_folds(np.asarray(trial_ids), n_splits, seed)
     selected: list[int] = []

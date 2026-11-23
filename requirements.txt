@@ -1,2 +1,5 @@
-numpy>=1.24
+numpy>=1.24,<3
+# Optional manuscript/figure tooling used by scripts under manuscript/.
+matplotlib>=3.8,<4
+reportlab>=4.0,<5
 

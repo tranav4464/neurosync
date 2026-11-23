@@ -7,7 +7,10 @@ name = "neurosync-p300"
 version = "0.1.0"
 description = "A reproducible, low-channel P300 speller research prototype for Neurosync"
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.24"]
+dependencies = ["numpy>=1.24,<3"]
+
+[project.optional-dependencies]
+manuscript = ["matplotlib>=3.8,<4", "reportlab>=4.0,<5"]
 
 [tool.setuptools.packages.find]
 include = ["neurosync_p300*"]

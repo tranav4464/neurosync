@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from .data import EEGDataset
-from .geometry import compute_observability_certificate, get_canonical_p300_leadfield
+from .geometry import compute_observability_certificate
 from .model import DiagonalLDA
 from .quality import QualityAssessment
 
@@ -83,9 +83,10 @@ def decode_dataset(
     if quality is not None and len(quality.epoch_quality) != len(features):
         raise ValueError("quality and features must contain the same number of epochs")
     
-    # Initialize biophysical leadfield if channel names are available
-    if leadfield is None and len(dataset.channel_names) > 0:
-        leadfield = get_canonical_p300_leadfield(dataset.channel_names)
+    # Geometry gating is opt-in. The caller must provide a validated physical
+    # leadfield aligned to the channels represented by ``dataset``.
+    if leadfield is not None and leadfield.shape[0] != len(dataset.channel_names):
+        raise ValueError("leadfield rows must match dataset channel order")
 
     flash_scores = model.decision_function(features)
     decoded: list[DecodedTrial] = []

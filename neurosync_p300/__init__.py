@@ -15,6 +15,7 @@ from .geometry import (
     whitened_unit_signatures,
     absolute_cosine_ambiguity,
     compute_observability_certificate,
+    get_canonical_p300_proxy,
     get_canonical_p300_leadfield,
 )
 from .spatial import TemplateSpatialFilter, SubspaceWhitenedSpatialFilter
@@ -44,6 +45,7 @@ __all__ = [
     "whitened_unit_signatures",
     "absolute_cosine_ambiguity",
     "compute_observability_certificate",
+    "get_canonical_p300_proxy",
     "get_canonical_p300_leadfield",
     "TemplateSpatialFilter",
     "SubspaceWhitenedSpatialFilter",
