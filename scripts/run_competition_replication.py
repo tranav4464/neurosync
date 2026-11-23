@@ -17,11 +17,13 @@ def main() -> None:
     parser.add_argument("--min-channels", type=int, default=4)
     parser.add_argument("--max-channels", type=int, default=6)
     parser.add_argument("--sparse-feature-count", type=int, default=0)
+    parser.add_argument("--classifier", choices=("diagonal_lda", "spatiotemporal_shrinkage_lda"), default="diagonal_lda")
     parser.add_argument("--output", default="results/competition_iii_replication_subject_a.json")
     args = parser.parse_args()
     report = run_subject_a_replication(
         args.directory, held_out_trials=args.held_out_trials, repetitions=args.repetitions, seed=args.seed,
         min_channels=args.min_channels, max_channels=args.max_channels, sparse_feature_count=args.sparse_feature_count,
+        classifier=args.classifier,
     )
     save_replication_report(report, args.output)
     print(json.dumps(report, indent=2))

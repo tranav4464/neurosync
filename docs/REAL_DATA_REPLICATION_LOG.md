@@ -1,5 +1,7 @@
 # BCI Competition III Dataset II Replication Log
 
+> Historical baseline log. The later spatiotemporal shrinkage-LDA benchmark improved the same held-out Subject A split to 36% with six channels and 60% with eight channels, and obtained 76%/88% on Subject B. The primary locked confirmation result is now the multi-participant [BNCI 2014-008 benchmark](PUBLIC_DATA_BENCHMARK.md). This file is retained to document the algorithmic progression rather than silently replacing the earlier result.
+
 ## Purpose
 
 This log moves NeuroSync beyond synthetic EEG. It records a reproducible, within-subject held-out-character replication on the official BCI Competition III Dataset II ASCII files. It is **not** a dry-electrode, ALS, clinical, or wet-reference result.

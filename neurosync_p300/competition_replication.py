@@ -12,7 +12,7 @@ from .competition_data import load_competition_iii_train_ascii
 from .data import EEGDataset
 from .features import extract_features
 from .feature_selection import StandardizedMeanFeatureSelector
-from .model import DiagonalLDA
+from .model import DiagonalLDA, ShrinkageLDA
 from .preprocessing import preprocess_epochs
 
 
@@ -56,6 +56,7 @@ def run_subject_a_replication(
     min_channels: int = 4,
     max_channels: int = 6,
     sparse_feature_count: int = 0,
+    classifier: str = "diagonal_lda",
 ) -> dict:
     """Run a held-out-character sparse-montage replication.
 
@@ -83,20 +84,29 @@ def run_subject_a_replication(
         train_clean, train.labels, train.trial_ids, train.channel_names, train.sampling_rate,
         min_channels=min_channels, max_channels=max_channels,
     )
-    train_features = extract_features(train_clean[:, selection.indices, :], train.sampling_rate)
-    test_features = extract_features(test_clean[:, selection.indices, :], test.sampling_rate)
+    feature_options = {}
+    if classifier == "spatiotemporal_shrinkage_lda":
+        feature_options = {"window_seconds": (0.10, 0.80), "downsample": 8}
+    elif classifier != "diagonal_lda":
+        raise ValueError("unsupported classifier")
+    train_features = extract_features(train_clean[:, selection.indices, :], train.sampling_rate, **feature_options)
+    test_features = extract_features(test_clean[:, selection.indices, :], test.sampling_rate, **feature_options)
     if sparse_feature_count:
         selector = StandardizedMeanFeatureSelector(max_features=min(sparse_feature_count, train_features.shape[1]))
         train_features = selector.fit(train_features, train.labels).transform(train_features)
         test_features = selector.transform(test_features)
-    model = DiagonalLDA(shrinkage=0.20).fit(train_features, train.labels)
+    model = (
+        ShrinkageLDA(shrinkage=0.10)
+        if classifier == "spatiotemporal_shrinkage_lda"
+        else DiagonalLDA(shrinkage=0.20)
+    ).fit(train_features, train.labels)
     flash_prediction = model.predict(test_features)
     balanced_accuracy = float(0.5 * (
         np.mean(flash_prediction[test.labels == 0] == 0) + np.mean(flash_prediction[test.labels == 1] == 1)
     ))
     decoded = _decode_row_column(model.decision_function(test_features), test, targets, repetitions)
     return {
-        "dataset": "BCI Competition III Dataset II / Subject A train set",
+        "dataset": f"BCI Competition III Dataset II / {Path(directory).name} train set",
         "claim_boundary": "Within-subject held-out-character replication only; no test-set labels, clinical, dry-electrode, or wet-reference claim.",
         "seed": seed,
         "held_out_trials": test_ids.tolist(),
@@ -104,6 +114,7 @@ def run_subject_a_replication(
         "test_trials": len(test_ids),
         "repetitions": repetitions,
         "sparse_feature_count": sparse_feature_count,
+        "classifier": classifier,
         "selected_channels": selection.names,
         "selection_cv_balanced_accuracy": selection.cross_validated_balanced_accuracy,
         "held_out_flash_balanced_accuracy": balanced_accuracy,

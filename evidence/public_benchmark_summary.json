@@ -1,0 +1,33 @@
+{
+  "analysis_date": "2026-11-23",
+  "development_subject": "BNCI 2014-008 A01",
+  "confirmation_subjects": ["A02", "A03", "A04", "A05", "A06", "A07", "A08"],
+  "protocol": "first 15 calibration characters train; final 20 feedback characters held out",
+  "method": "training-only channel selection plus spatiotemporal shrinkage LDA; 10 repetitions",
+  "subject_results": [
+    {"subject":"A01","four":0.75,"six":0.80,"eight":0.80},
+    {"subject":"A02","four":0.90,"six":0.90,"eight":0.95},
+    {"subject":"A03","four":0.95,"six":0.90,"eight":0.90},
+    {"subject":"A04","four":0.80,"six":0.95,"eight":0.95},
+    {"subject":"A05","four":0.80,"six":0.85,"eight":0.85},
+    {"subject":"A06","four":0.75,"six":0.95,"eight":0.90},
+    {"subject":"A07","four":0.90,"six":0.95,"eight":1.00},
+    {"subject":"A08","four":1.00,"six":1.00,"eight":1.00}
+  ],
+  "confirmation": {
+    "six_channel_mean": 0.9285714286,
+    "eight_channel_mean": 0.9357142857,
+    "six_minus_eight_mean": -0.0071428571,
+    "participant_bootstrap_95_ci": [-0.0285714286, 0.0142857143],
+    "declared_engineering_noninferiority_margin": 0.05,
+    "engineering_noninferiority_pass": true,
+    "six_channel_subjects_at_or_above_0_85": "7/7"
+  },
+  "external_context": {
+    "bci_competition_iii_subject_A_six_channel": 0.36,
+    "bci_competition_iii_subject_A_eight_channel": 0.60,
+    "bci_competition_iii_subject_B_six_channel": 0.76,
+    "bci_competition_iii_subject_B_eight_channel": 0.88
+  },
+  "claim_boundary": "BNCI 2014-008 used active Ag/AgCl electrodes. Results support sparse active-electrode feasibility, not dry-electrode equivalence, prospective clinical efficacy, or home use."
+}

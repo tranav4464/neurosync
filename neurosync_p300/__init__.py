@@ -2,7 +2,7 @@
 
 from .data import EEGDataset, load_npz, save_npz
 from .decoder import DecoderConfig, decode_dataset
-from .model import DiagonalLDA
+from .model import DiagonalLDA, ShrinkageLDA
 from .preprocessing import preprocess_epochs
 from .quality import ContactQualityGate, QualityAssessment
 from .evaluation import NonInferiorityResult, SafeMetrics, assess_noninferiority, safe_metrics
@@ -29,6 +29,7 @@ __all__ = [
     "DecoderConfig",
     "decode_dataset",
     "DiagonalLDA",
+    "ShrinkageLDA",
     "preprocess_epochs",
     "ContactQualityGate",
     "QualityAssessment",

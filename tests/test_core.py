@@ -10,7 +10,7 @@ from neurosync_p300.benchmark import benchmark_wet_reference_vs_casp
 from neurosync_p300.decoder import DecodedTrial, DecoderConfig, decode_dataset, summarize_decoding
 from neurosync_p300.evaluation import assess_noninferiority, safe_metrics
 from neurosync_p300.features import extract_features
-from neurosync_p300.model import DiagonalLDA
+from neurosync_p300.model import DiagonalLDA, ShrinkageLDA
 from neurosync_p300.preprocessing import preprocess_epochs
 from neurosync_p300.quality import ContactQualityGate, QualityAssessment, apply_channel_quality
 from neurosync_p300.spatial import TemplateSpatialFilter
@@ -34,6 +34,15 @@ class CoreTests(unittest.TestCase):
         X[50:, 0] += 2.5
         model = DiagonalLDA().fit(X, y)
         self.assertGreater(float(np.mean(model.predict(X) == y)), 0.90)
+
+    def test_shrinkage_lda_uses_correlated_features(self):
+        rng = np.random.default_rng(2026)
+        y = np.repeat([0, 1], 80)
+        latent = rng.normal(size=(160, 1))
+        X = np.hstack([latent + rng.normal(scale=0.2, size=(160, 1)) for _ in range(6)])
+        X[y == 1, :3] += 0.9
+        model = ShrinkageLDA(shrinkage=0.10).fit(X, y)
+        self.assertGreater(float(np.mean(model.predict(X) == y)), 0.75)
 
     def test_channel_selection_returns_compact_set(self):
         dataset = generate_synthetic_dataset(n_trials=18, repetitions=3, seed=3, electrode_type="dry")

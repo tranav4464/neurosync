@@ -36,15 +36,19 @@ illustrative montage proxy. It is not an anatomical BEM/FEM model and cannot
 certify source separation, electrode contact, false-accept probability, or
 clinical safety.
 
-## Current evidence
+## Public-data result
 
-The current real-data result establishes a transparent improvement benchmark.
-On a within-subject held-out-character split
-of the labelled BCI Competition III Dataset II Subject A training recording,
-the compact 4-channel LDA baseline achieved **16.0% character accuracy**.
-The eight-channel sparse-feature ablation also achieved **16.0%**. See the
-[replication log](docs/REAL_DATA_REPLICATION_LOG.md) for the exact import,
-split, and limitations.
+On the locked A02–A08 confirmation cohort of BNCI 2014-008, containing
+participants with ALS, the six-channel spatiotemporal shrinkage-LDA system
+achieved **92.9% mean held-out character accuracy** at ten repetitions versus
+**93.6% with eight channels**. All seven confirmation participants reached at
+least 85% with six channels. The paired six-minus-eight difference was −0.7
+percentage points (participant-bootstrap 95% interval: −2.86 to +1.43 points),
+passing the declared −5-point engineering non-inferiority margin.
+
+This result used active Ag/AgCl electrodes—not dry electrodes—and therefore
+supports low-channel feasibility, not dry/wet equivalence. See the
+[public-data benchmark](docs/PUBLIC_DATA_BENCHMARK.md).
 
 In a controlled software contact-failure stress evaluation, CASP reduced wrong
 accepted outputs relative to an ordinary decoder, but coverage remained too
@@ -52,10 +56,9 @@ low for communication use. The sparse system was non-inferior to its easy wet
 reference in **0/8** runs. See the
 [evaluation review](docs/EVALUATION_AND_IMPROVEMENT_REVIEW.md).
 
-Therefore, NeuroSync has **not** demonstrated 85% correct accepted outputs,
-wet-reference equivalence, dry-electrode performance, low cost, home use, or
-clinical benefit. Those are pre-specified objectives for later experiments,
-not current results.
+NeuroSync has demonstrated the **six-channel accuracy target on one public ALS
+cohort**. It has not yet demonstrated dry-electrode performance, prospective
+wet-reference equivalence, low cost, home use, or clinical benefit.
 
 ## Performance target
 
@@ -90,6 +93,8 @@ Key documents:
 - [Evaluation review](docs/EVALUATION_AND_IMPROVEMENT_REVIEW.md): controlled stress-test results and failure analysis.
 - [Clinical translation protocol](docs/CLINICAL_TRANSLATION_PROTOCOL.md): future validation plan, not a clinical claim.
 - [NeuroSync-OG method](docs/NEUROSYNC_OG_METHOD.md): equations, forward-model interface, and required ablations.
+- [Public-data benchmark](docs/PUBLIC_DATA_BENCHMARK.md): locked ALS confirmation results and external transfer limits.
+- [Data manifest](docs/DATA_MANIFEST.md): public-source provenance, licenses, and exact checksums.
 
 ## Run the software
 
@@ -100,6 +105,7 @@ python -m unittest discover -s tests -v
 python scripts/run_demo.py
 python scripts/run_casp_demo.py
 python scripts/run_evaluation.py
+python -m scripts.run_bnci_008_benchmark --directory data/external/bnci_008_2014
 python scripts/run_session.py --train train.npz --test held_out.npz --forward-model forward_model.npz
 ```
 
