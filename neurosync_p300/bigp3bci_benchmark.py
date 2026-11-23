@@ -117,6 +117,37 @@ def benchmark_recording_pair(
     }
 
 
+def benchmark_cohort(recording_pairs: list[tuple[str | Path, str | Path]]) -> dict:
+    """Run a predeclared set of file-disjoint pairs and summarize it equally.
+
+    Each participant contributes one recording-pair result, preventing a long
+    EDF file or a participant with more events from dominating the cohort mean.
+    """
+    if not recording_pairs:
+        raise ValueError("at least one train/test recording pair is required")
+    participants = [benchmark_recording_pair(train, test) for train, test in recording_pairs]
+    counts = sorted({item["channels"] for result in participants for item in result["results"]})
+    summary = {}
+    for count in counts:
+        rows = [next(item for item in result["results"] if item["channels"] == count) for result in participants]
+        aucs = np.asarray([item["held_out_event_roc_auc"] for item in rows])
+        balanced = np.asarray([item["held_out_event_balanced_accuracy"] for item in rows])
+        summary[str(count)] = {
+            "participants": int(len(rows)),
+            "mean_held_out_event_roc_auc": float(aucs.mean()),
+            "median_held_out_event_roc_auc": float(np.median(aucs)),
+            "min_held_out_event_roc_auc": float(aucs.min()),
+            "max_held_out_event_roc_auc": float(aucs.max()),
+            "mean_held_out_event_balanced_accuracy": float(balanced.mean()),
+        }
+    return {
+        "analysis": "predeclared file-disjoint event-detection cohort",
+        "participants": participants,
+        "cohort_summary": summary,
+        "claim_boundary": "Study-specific event detection; no character-accuracy, dry-electrode, or clinical claim.",
+    }
+
+
 def save_report(report: dict, output: str | Path) -> None:
     destination = Path(output)
     destination.parent.mkdir(parents=True, exist_ok=True)

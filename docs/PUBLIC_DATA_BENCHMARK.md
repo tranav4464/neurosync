@@ -82,19 +82,23 @@ external endpoint is target-versus-nontarget event ROC AUC, trained on one
 Every one of the six EDF inputs passed the event audit: seven target blocks,
 120 events per block, and ten labelled target events per block.
 
-| Study A participant | Six selected channels: held-out AUC | All 32 channels: held-out AUC |
-|---|---:|---:|
-| A01 | 0.764 | 0.895 |
-| A02 | 0.844 | 0.841 |
-| A03 | 0.703 | 0.690 |
-| **Mean** | **0.771** | **0.809** |
+The locked cohort contains all 13 Study A participants available in the
+official hierarchy. The predeclared comparison is personalised six-channel
+forward selection on `Train02` versus all 32 EEG channels, both evaluated on
+the later, file-disjoint `Test06` recording.
 
-The corresponding held-out balanced-accuracy means were 70.2% (six) and
-71.2% (32). This three-participant pilot does **not** establish non-inferiority
-or a character-accuracy result. Its value is methodological: it shows that a
-sparse montage can be evaluated honestly on a second, protocol-incompatible
-resource; it also exposes participant-dependent performance and makes robust
-montage selection the priority rather than claiming generalisation too early.
+| Held-out endpoint | Six selected channels | All 32 channels | Six minus 32 |
+|---|---:|---:|---:|
+| Mean event ROC AUC | 0.724 | 0.773 | −0.049 |
+| Median event ROC AUC | 0.739 | 0.757 | −0.030 |
+| Mean balanced accuracy | 66.6% | 67.6% | −1.1 points |
+
+The paired participant bootstrap interval for the AUC difference is −0.077 to
+−0.022 (20,000 resamples); six channels exceeded 32 channels in 3/13
+participants. This result falsifies the broadest version of the sparse-parity
+claim for this external paradigm. It is therefore a baseline for the next
+algorithmic stage—robust montage selection—rather than a claim of
+non-inferiority or character-level performance.
 
 ## Exact reproducibility
 
@@ -113,6 +117,10 @@ python -m scripts.run_bigp3bci_benchmark `
   --train data/external/bigp3bci_sample_A01_train02.edf `
   --test data/external/bigp3bci_studyA_rd/A_01_SE001_RD_Test06.edf
 ```
+
+The full Study A cohort can be reproduced by repeating `--pair TRAIN TEST` for
+the 13 file pairs listed in the source hierarchy. The compact cohort evidence
+is stored in [`evidence/bigp3bci_studyA_rd_13cohort.json`](../evidence/bigp3bci_studyA_rd_13cohort.json).
 
 ## Claim boundary
 

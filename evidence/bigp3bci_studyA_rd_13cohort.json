@@ -1,0 +1,12 @@
+{
+  "analysis_date": "2026-11-23",
+  "dataset": "bigP3BCI 1.0.0, Study A, RD, 9x8",
+  "participants": ["A_01", "A_02", "A_03", "A_04", "A_05", "A_06", "A_07", "A_09", "A_14", "A_15", "A_16", "A_17", "A_19"],
+  "split": "personalized Train02 to later file-disjoint Test06",
+  "endpoint": "event-level target-versus-nontarget ROC AUC",
+  "event_audit": "Every input: 7 target blocks; 120 events per block; 10 labelled target events per block.",
+  "six_channel": {"mean_auc": 0.7238490081, "median_auc": 0.7394434137, "range_auc": [0.5943042672, 0.8444526902], "mean_balanced_accuracy": 0.6656343656},
+  "all_32_channel": {"mean_auc": 0.7730540888, "median_auc": 0.7569387755, "range_auc": [0.6475324675, 0.9319666048], "mean_balanced_accuracy": 0.6763736264},
+  "paired_auc_difference_six_minus_32": {"mean": -0.0492050806, "median": -0.0299257885, "bootstrap_95_ci_20000": [-0.07748972, -0.02207539], "six_better_participants": 3},
+  "claim_boundary": "A file-disjoint event-detection cohort, not a character-accuracy, dry-electrode, clinical, or non-inferiority study."
+}
