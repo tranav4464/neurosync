@@ -1,0 +1,11 @@
+{
+  "dataset": "bigP3BCI 1.0.0 Study A RD",
+  "endpoint": "file-disjoint target-event ROC AUC",
+  "participants": 13,
+  "method": "training-only ERP template signal-to-noise with response-shape redundancy penalty",
+  "development_A01_A07_mean": {"forward": 0.7456003180, "snr_diverse": 0.7718579380},
+  "confirmation_A09_A14_A19_mean": {"forward": 0.6984724799, "snr_diverse": 0.6951515152, "full_32": 0.7281539889},
+  "all_13_mean": {"forward": 0.7238490081, "snr_diverse": 0.7364549736, "full_32": 0.7730540888},
+  "all_13_paired_snr_diverse_minus_forward": {"mean": 0.0126059655, "participant_bootstrap_95_ci": [-0.01157724, 0.0379949], "participants_improved": 6},
+  "interpretation": "Exploratory ablation; no confirmation gain or full montage parity."
+}

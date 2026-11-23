@@ -17,7 +17,7 @@ def main() -> None:
         help="repeat for a predeclared cohort of file-disjoint recording pairs",
     )
     parser.add_argument("--output", default="results/bigp3bci_pair.json")
-    parser.add_argument("--selection-method", choices=("forward", "stability"), default="forward")
+    parser.add_argument("--selection-method", choices=("forward", "stability", "snr_diverse"), default="forward")
     args = parser.parse_args()
     if args.pair:
         if args.train or args.test:

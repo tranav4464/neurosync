@@ -183,6 +183,62 @@ def stability_select_channels(
     )
 
 
+def snr_diverse_select_channels(
+    epochs: np.ndarray,
+    labels: np.ndarray,
+    channel_names: list[str],
+    sampling_rate: float,
+    *,
+    channels: int = 6,
+    redundancy_weight: float = 0.25,
+) -> ChannelSelectionResult:
+    """Combine ERP template SNR with diversity of channel response shapes.
+
+    This training-only heuristic joins P300 signal-to-noise selection with a
+    penalty for redundant target-minus-nontarget templates. It is an ablation,
+    not a physiological forward model or a validated novelty claim.
+    """
+    data = np.asarray(epochs, dtype=float)
+    y = np.asarray(labels, dtype=int)
+    if data.ndim != 3 or len(data) != len(y) or data.shape[1] != len(channel_names):
+        raise ValueError("epochs, labels, and channel_names must agree")
+    if set(np.unique(y)) != {0, 1} or not 1 <= channels <= len(channel_names):
+        raise ValueError("both classes and a valid channel budget are required")
+    if redundancy_weight < 0:
+        raise ValueError("redundancy_weight must be nonnegative")
+    start = int(round(0.30 * sampling_rate))  # 100 ms after 200 ms prestimulus
+    end = min(data.shape[-1], int(round(1.0 * sampling_rate)))
+    if end <= start:
+        raise ValueError("epochs do not contain the 100–800 ms response window")
+    window = data[..., start:end:8]
+    means = [window[y == label].mean(axis=0) for label in (0, 1)]
+    template = means[1] - means[0]
+    noise = np.concatenate([window[y == label] - means[label] for label in (0, 1)])
+    variance = np.mean(noise * noise, axis=(0, 2))
+    signal = np.mean(template * template, axis=1)
+    snr = signal / np.maximum(variance, 1e-12)
+    # Normalized waveform similarity measures redundancy of response shape.
+    normalized = template / np.maximum(np.linalg.norm(template, axis=1, keepdims=True), 1e-12)
+    similarity = np.abs(normalized @ normalized.T)
+    selected: list[int] = []
+    history: list[dict] = []
+    for _ in range(channels):
+        candidates = [index for index in range(len(channel_names)) if index not in selected]
+        scores = [
+            float(np.log1p(snr[index]) - redundancy_weight * max(
+                (similarity[index, other] for other in selected), default=0.0
+            )) for index in candidates
+        ]
+        chosen = max(zip(scores, candidates), key=lambda item: (item[0], -item[1]))[1]
+        selected.append(chosen)
+        history.append({"channel": channel_names[chosen], "template_snr": float(snr[chosen])})
+    return ChannelSelectionResult(
+        indices=selected, names=[channel_names[index] for index in selected],
+        cross_validated_balanced_accuracy=float("nan"), history=history,
+        geometry_source="none",
+    )
+
+
 def biophysically_regularized_channel_selection(
     epochs: np.ndarray,
     labels: np.ndarray,

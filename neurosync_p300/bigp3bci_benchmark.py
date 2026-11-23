@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 
 from .bigp3bci_data import load_bigp3bci_edf
-from .channel_selection import forward_select_channels, stability_select_channels
+from .channel_selection import forward_select_channels, stability_select_channels, snr_diverse_select_channels
 from .features import extract_features
 from .model import ShrinkageLDA
 from .preprocessing import preprocess_epochs
@@ -90,10 +90,17 @@ def benchmark_recording_pair(
                     train_clean, train.labels, train.trial_ids, train.channel_names,
                     train.sampling_rate, channels=count,
                 )
+            elif selection_method == "snr_diverse":
+                selection = snr_diverse_select_channels(
+                    train_clean, train.labels, train.channel_names,
+                    train.sampling_rate, channels=count,
+                )
             else:
-                raise ValueError("selection_method must be 'forward' or 'stability'")
+                raise ValueError("selection_method must be forward, stability, or snr_diverse")
             indices, names = selection.indices, selection.names
             selection_score = selection.cross_validated_balanced_accuracy
+            if not np.isfinite(selection_score):
+                selection_score = None
         train_features = extract_features(
             train_clean[:, indices], train.sampling_rate,
             window_seconds=(0.10, 0.80), downsample=8,
