@@ -9,18 +9,31 @@ question in P300 brain--computer interfaces (BCIs):
 > reference **without increasing wrong outputs or hiding failures through
 > excessive abstention**?
 
-It is not a headset, a medical device, a clinical decision aid, or evidence of
-performance for people with ALS. The framework makes the target measurable:
-correct accepted outputs, wrong accepted outputs, coverage, repetitions,
-contact-quality actions, and held-out-session performance.
+It is not a headset, a medical device, or a clinical decision aid. Its central
+scientific contribution is an evidence hierarchy: it distinguishes results
+that are confirmed, externally bounded, and still only proposed. The framework
+makes the target measurable through correct outputs, wrong outputs, coverage,
+repetitions, contact-quality actions, and held-out-session performance.
 
-## NeuroSync-OG: the research innovation
+## What the evidence says now
+
+| Status | Finding | What it does **not** show |
+|---|---|---|
+| Confirmed active-EEG feasibility | Six selected active channels achieved 92.9% mean held-out character accuracy on BNCI ALS participants A02–A08, versus 93.6% with eight. | Dry-electrode equivalence, home use, or clinical benefit. |
+| External boundary result | Across 13 bigP3BCI Study A participants, six channels averaged event AUC 0.724 versus 0.773 with 32 channels. | A universal compact-montage claim or a 6×6 character-accuracy result. |
+| Testable mechanism | NeuroSync-OG provides contact/geometry-aware selective actions. | That geometry or contact gating improves real EEG performance; this requires a measured-forward-model ablation. |
+
+Read the concise [flagship research narrative](docs/FLAGSHIP_RESEARCH_NARRATIVE.md)
+or the traceable [flagship manuscript](manuscript/FLAGSHIP_MANUSCRIPT.md).
+
+## NeuroSync-OG: the testable mechanism layer
 
 NeuroSync-OG combines Observable Geometry with Contact-Aware Adaptive Sparse
 P300 decoding. Conventional systems ask whether a classifier is confident;
 NeuroSync-OG also asks whether the signal is trustworthy and whether the
 remaining electrode configuration can still distinguish target and nuisance
-source signatures. It combines:
+source signatures. It is an implemented, falsifiable mechanism layer, not a
+claimed source of the current benchmark gain. It combines:
 
 1. training-only 4--6-channel selection jointly regularized by fold stability,
    contact reliability, forward observability, and target–artifact ambiguity;
@@ -49,6 +62,12 @@ passing the declared −5-point engineering non-inferiority margin.
 This result used active Ag/AgCl electrodes—not dry electrodes—and therefore
 supports low-channel feasibility, not dry/wet equivalence. See the
 [public-data benchmark](docs/PUBLIC_DATA_BENCHMARK.md).
+
+The full external bigP3BCI Study A benchmark is equally important: across 13
+file-disjoint participant recordings, six channels averaged 0.724 target-event
+AUC versus 0.773 with 32 channels. This prevents a misleading universal
+compact-montage claim and defines the next technical target. See the
+[external cohort evidence](evidence/bigp3bci_studyA_rd_13cohort.json).
 
 In a controlled software contact-failure stress evaluation, CASP reduced wrong
 accepted outputs relative to an ordinary decoder, but coverage remained too
@@ -94,6 +113,7 @@ Key documents:
 - [Clinical translation protocol](docs/CLINICAL_TRANSLATION_PROTOCOL.md): future validation plan, not a clinical claim.
 - [NeuroSync-OG method](docs/NEUROSYNC_OG_METHOD.md): equations, forward-model interface, and required ablations.
 - [Public-data benchmark](docs/PUBLIC_DATA_BENCHMARK.md): locked ALS confirmation results and external transfer limits.
+- [Flagship research narrative](docs/FLAGSHIP_RESEARCH_NARRATIVE.md): strongest defensible framing, contribution, and claim boundaries.
 - [Data manifest](docs/DATA_MANIFEST.md): public-source provenance, licenses, and exact checksums.
 
 ## Run the software
