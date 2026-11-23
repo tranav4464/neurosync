@@ -1,0 +1,18 @@
+{
+  "analysis_date": "2026-11-23",
+  "dataset": "bigP3BCI 1.0.0, Study A RD 9x8",
+  "split": "Train02 to later, file-disjoint Test06 within participant",
+  "participants": 3,
+  "endpoint": "held-out event-level target-versus-nontarget ROC AUC",
+  "event_audit": "Each source recording: 7 target blocks; 120 events/block; 10 labelled target events/block.",
+  "results": [
+    {"participant": "A01", "six_channel_auc": 0.7641929499, "all_32_channel_auc": 0.8952690167, "six_channel_balanced_accuracy": 0.6798701299, "all_32_channel_balanced_accuracy": 0.8103896104},
+    {"participant": "A02", "six_channel_auc": 0.8444526902, "all_32_channel_auc": 0.8409833024, "six_channel_balanced_accuracy": 0.7616883117, "all_32_channel_balanced_accuracy": 0.6831168831},
+    {"participant": "A03", "six_channel_auc": 0.7030983302, "all_32_channel_auc": 0.6897402597, "six_channel_balanced_accuracy": 0.6636363636, "all_32_channel_balanced_accuracy": 0.6422077922}
+  ],
+  "mean_six_channel_auc": 0.7705813234,
+  "mean_all_32_channel_auc": 0.8086641929,
+  "mean_six_channel_balanced_accuracy": 0.7017316017,
+  "mean_all_32_channel_balanced_accuracy": 0.7119047620,
+  "claim_boundary": "A small file-disjoint event-detection pilot. It does not establish character accuracy, dry-electrode equivalence, non-inferiority, or clinical performance."
+}

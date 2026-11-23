@@ -73,15 +73,28 @@ This transfer result prevents an overbroad claim: the six-channel result is exce
 
 ### bigP3BCI readiness check
 
-NeuroSync now includes a conservative EDF adapter for the large public
-bigP3BCI resource. On the downloaded `StudyA/A_01` training recording it
-extracted 840 labeled epochs from seven target blocks (120 events and ten
-target events per block), using 32 EEG channels at approximately 256 Hz. This
-is a data-integrity and interoperability check, **not** a character-accuracy
-benchmark. That study exposes 120 unique stimulus codes per trial, so mapping
-them onto a 6×6 row/column decoder would be invalid. The next external study
-must define its own train/test protocol and output metric before any
-cross-dataset claim is made.
+NeuroSync now includes a conservative EDF adapter and a file-disjoint
+event-detection benchmark for the large public bigP3BCI resource. Study A uses
+a 9×8 random paradigm, so its 120 unique stimulus codes per trial cannot be
+silently converted into the 6×6 character decoder used above. Instead, the
+external endpoint is target-versus-nontarget event ROC AUC, trained on one
+`Train02` file and evaluated on the later `Test06` file for the same person.
+Every one of the six EDF inputs passed the event audit: seven target blocks,
+120 events per block, and ten labelled target events per block.
+
+| Study A participant | Six selected channels: held-out AUC | All 32 channels: held-out AUC |
+|---|---:|---:|
+| A01 | 0.764 | 0.895 |
+| A02 | 0.844 | 0.841 |
+| A03 | 0.703 | 0.690 |
+| **Mean** | **0.771** | **0.809** |
+
+The corresponding held-out balanced-accuracy means were 70.2% (six) and
+71.2% (32). This three-participant pilot does **not** establish non-inferiority
+or a character-accuracy result. Its value is methodological: it shows that a
+sparse montage can be evaluated honestly on a second, protocol-incompatible
+resource; it also exposes participant-dependent performance and makes robust
+montage selection the priority rather than claiming generalisation too early.
 
 ## Exact reproducibility
 
@@ -92,6 +105,14 @@ python -m scripts.run_bnci_008_benchmark `
 ```
 
 The compact, version-controlled result is stored in [`evidence/public_benchmark_summary.json`](../evidence/public_benchmark_summary.json). Raw public files remain excluded from Git because of size and source licensing.
+
+For the bigP3BCI pilot:
+
+```powershell
+python -m scripts.run_bigp3bci_benchmark `
+  --train data/external/bigp3bci_sample_A01_train02.edf `
+  --test data/external/bigp3bci_studyA_rd/A_01_SE001_RD_Test06.edf
+```
 
 ## Claim boundary
 

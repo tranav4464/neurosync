@@ -8,6 +8,7 @@ from neurosync_p300.channel_selection import forward_select_channels
 from neurosync_p300.calibration import calibrate_decision_oof, calibrate_temperature_oof
 from neurosync_p300.benchmark import benchmark_wet_reference_vs_casp
 from neurosync_p300.bigp3bci_data import _rising_edges, _trial_blocks
+from neurosync_p300.bigp3bci_benchmark import _roc_auc
 from neurosync_p300.decoder import DecodedTrial, DecoderConfig, decode_dataset, summarize_decoding
 from neurosync_p300.evaluation import assess_noninferiority, safe_metrics
 from neurosync_p300.features import extract_features
@@ -86,6 +87,10 @@ class CoreTests(unittest.TestCase):
         self.assertListEqual(_rising_edges(pulses).tolist(), [1, 5])
         targets = np.array([0, 7, 7, 0, 3, 3, 3, 0])
         self.assertListEqual(_trial_blocks(targets), [(1, 3, 7), (4, 7, 3)])
+
+    def test_bigp3bci_auc_handles_perfect_and_tied_scores(self):
+        self.assertEqual(_roc_auc(np.array([0, 0, 1, 1]), np.array([0.1, 0.2, 0.8, 0.9])), 1.0)
+        self.assertEqual(_roc_auc(np.array([0, 0, 1, 1]), np.ones(4)), 0.5)
 
     def test_sparse_feature_selector_uses_training_ranked_features(self):
         rng = np.random.default_rng(32)

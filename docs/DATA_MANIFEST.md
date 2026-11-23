@@ -43,3 +43,17 @@ The 2025 bigP3BCI resource is the planned cohort-scale extension: approximately 
 - Downloaded size: 8,057,142 bytes
 - SHA-256: `59226E70E588DF2CC28DAFFEA47580F759A6454BF01C61624B0378F0B24056C1`
 - Purpose: EDF/status-channel schema validation only; it is not included in the BNCI accuracy result and not a dry-electrode evaluation.
+
+### Downloaded Study A RD external-validation pilot
+
+The file-disjoint benchmark pairs `Train02` with later `Test06` within each
+participant. These are passive gel-based or active-dry recordings depending on
+the source file; this pilot does not infer electrode type from the EDF alone.
+
+| File | SHA-256 |
+|---|---|
+| A_01_SE001_RD_Test06.edf | `E3577772A3E09706459E47E2CEAD43E59A40A4282895B98647024DFDA8BC256A` |
+| A_02_SE001_RD_Train02.edf | `AB60BF783959B08BEF38A321E722B3E2A99B7BE4A16450DE34D1CB1D85E7D37D` |
+| A_02_SE001_RD_Test06.edf | `F22F70E6845EECAA1ECB1BA88E432B0FA44F1A319B128EAD7B605BE7EAE39164` |
+| A_03_SE001_RD_Train02.edf | `65D4CCB4EEC37389B3450CADBB941392AEF6CA0BABFDA345830C2E1553B7EEA1` |
+| A_03_SE001_RD_Test06.edf | `19E45DE798FA8B871D5E20705249BB3BC0EC2908B167396643BE88B76DEB5D05` |
