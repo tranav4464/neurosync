@@ -114,6 +114,7 @@ Key documents:
 - [NeuroSync-OG method](docs/NEUROSYNC_OG_METHOD.md): equations, forward-model interface, and required ablations.
 - [Public-data benchmark](docs/PUBLIC_DATA_BENCHMARK.md): locked ALS confirmation results and external transfer limits.
 - [Flagship research narrative](docs/FLAGSHIP_RESEARCH_NARRATIVE.md): strongest defensible framing, contribution, and claim boundaries.
+- [Prior-work and NYAS comparison](docs/PRIOR_WORK_AND_NYAS_COMPARISON.md): field positioning, judging alignment, and presentation narrative.
 - [Data manifest](docs/DATA_MANIFEST.md): public-source provenance, licenses, and exact checksums.
 
 ## Run the software
