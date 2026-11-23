@@ -1,0 +1,12 @@
+{
+  "analysis_date": "2026-11-23",
+  "dataset": "bigP3BCI 1.0.0, Study A RD 9x8",
+  "confirmation_participants": ["A_09", "A_14", "A_15", "A_16", "A_17", "A_19"],
+  "selection_rule": "Leave-one-character-trial stability vote over training recording only; six highest-vote channels.",
+  "endpoint": "file-disjoint Test06 event ROC AUC",
+  "stability_selection_mean_six_channel_auc": 0.6701051330,
+  "one_shot_forward_selection_mean_six_channel_auc_same_files": 0.6984724799,
+  "all_32_channel_mean_auc": 0.7281539889,
+  "decision": "Negative control. Do not promote stability selection as an improvement.",
+  "claim_boundary": "Exploratory implementation evaluation; not a preregistered clinical or dry-electrode study."
+}

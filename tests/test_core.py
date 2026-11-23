@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from neurosync_p300.channel_selection import forward_select_channels
+from neurosync_p300.channel_selection import forward_select_channels, stability_select_channels
 from neurosync_p300.calibration import calibrate_decision_oof, calibrate_temperature_oof
 from neurosync_p300.benchmark import benchmark_wet_reference_vs_casp
 from neurosync_p300.bigp3bci_data import _rising_edges, _trial_blocks
@@ -62,6 +62,16 @@ class CoreTests(unittest.TestCase):
         self.assertGreaterEqual(len(selection.indices), 4)
         self.assertLessEqual(len(selection.indices), 6)
         self.assertEqual(len(set(selection.indices)), len(selection.indices))
+
+    def test_stability_channel_selection_returns_compact_set(self):
+        dataset = generate_synthetic_dataset(n_trials=6, repetitions=3, seed=33, electrode_type="dry")
+        clean = preprocess_epochs(dataset.epochs, dataset.sampling_rate)
+        selection = stability_select_channels(
+            clean, dataset.labels, dataset.trial_ids, dataset.channel_names,
+            dataset.sampling_rate, channels=4,
+        )
+        self.assertEqual(len(selection.indices), 4)
+        self.assertEqual(len(set(selection.indices)), 4)
 
     def test_template_spatial_filter_reduces_channel_dimension(self):
         dataset = generate_synthetic_dataset(n_trials=12, repetitions=3, seed=31, electrode_type="dry")

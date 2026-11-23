@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 
 from .bigp3bci_data import load_bigp3bci_edf
-from .channel_selection import forward_select_channels
+from .channel_selection import forward_select_channels, stability_select_channels
 from .features import extract_features
 from .model import ShrinkageLDA
 from .preprocessing import preprocess_epochs
@@ -60,6 +60,7 @@ def benchmark_recording_pair(
     test_path: str | Path,
     *,
     channel_counts: tuple[int, ...] = (6, 32),
+    selection_method: str = "forward",
 ) -> dict:
     """Train on one EDF recording and evaluate a later, separate EDF file."""
     train = load_bigp3bci_edf(train_path)
@@ -79,10 +80,18 @@ def benchmark_recording_pair(
             names = list(train.channel_names)
             selection_score = None
         else:
-            selection = forward_select_channels(
-                train_clean, train.labels, train.trial_ids, train.channel_names,
-                train.sampling_rate, min_channels=count, max_channels=count,
-            )
+            if selection_method == "forward":
+                selection = forward_select_channels(
+                    train_clean, train.labels, train.trial_ids, train.channel_names,
+                    train.sampling_rate, min_channels=count, max_channels=count,
+                )
+            elif selection_method == "stability":
+                selection = stability_select_channels(
+                    train_clean, train.labels, train.trial_ids, train.channel_names,
+                    train.sampling_rate, channels=count,
+                )
+            else:
+                raise ValueError("selection_method must be 'forward' or 'stability'")
             indices, names = selection.indices, selection.names
             selection_score = selection.cross_validated_balanced_accuracy
         train_features = extract_features(
@@ -109,6 +118,7 @@ def benchmark_recording_pair(
         "dataset": "bigP3BCI 1.0.0", "study": "Study A", "paradigm": "RD, 9x8",
         "train_file": Path(train_path).name, "held_out_file": Path(test_path).name,
         "split": "file-disjoint Train recording to later Test recording",
+        "selection_method": selection_method,
         "endpoint": "event-level target-vs-nontarget ROC AUC and balanced accuracy",
         "claim_boundary": "Event detection only; no unvalidated conversion to character accuracy or dry-electrode claim.",
         "train_audit": train.metadata["event_table_audit"],
@@ -117,7 +127,9 @@ def benchmark_recording_pair(
     }
 
 
-def benchmark_cohort(recording_pairs: list[tuple[str | Path, str | Path]]) -> dict:
+def benchmark_cohort(
+    recording_pairs: list[tuple[str | Path, str | Path]], *, selection_method: str = "forward"
+) -> dict:
     """Run a predeclared set of file-disjoint pairs and summarize it equally.
 
     Each participant contributes one recording-pair result, preventing a long
@@ -125,7 +137,10 @@ def benchmark_cohort(recording_pairs: list[tuple[str | Path, str | Path]]) -> di
     """
     if not recording_pairs:
         raise ValueError("at least one train/test recording pair is required")
-    participants = [benchmark_recording_pair(train, test) for train, test in recording_pairs]
+    participants = [
+        benchmark_recording_pair(train, test, selection_method=selection_method)
+        for train, test in recording_pairs
+    ]
     counts = sorted({item["channels"] for result in participants for item in result["results"]})
     summary = {}
     for count in counts:

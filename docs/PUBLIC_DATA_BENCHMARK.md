@@ -100,6 +100,19 @@ claim for this external paradigm. It is therefore a baseline for the next
 algorithmic stage—robust montage selection—rather than a claim of
 non-inferiority or character-level performance.
 
+### Robust-selection negative control
+
+To test whether one-shot channel choice was the cause of the gap, a
+leave-one-trial stability selector was implemented. It votes for channels that
+recur across seven calibration-trial holdouts, using no future recording data.
+Its design was evaluated only on the six held-out confirmation participants
+(`A09, A14–A17, A19`): mean six-channel AUC was 0.670, versus 0.698 for the
+original forward selector on the identical files. The stability selector is
+therefore retained as an auditable negative control and not promoted as the
+NeuroSync method. The result rules out this simple form of selection
+instability as the solution and narrows the next hypothesis to a validated
+physiological/geometry-informed prior or more calibration data.
+
 ## Exact reproducibility
 
 ```powershell

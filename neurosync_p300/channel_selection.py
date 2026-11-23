@@ -135,6 +135,54 @@ def forward_select_channels(
     )
 
 
+def stability_select_channels(
+    epochs: np.ndarray,
+    labels: np.ndarray,
+    trial_ids: np.ndarray,
+    channel_names: list[str],
+    sampling_rate: float,
+    *,
+    channels: int = 6,
+) -> ChannelSelectionResult:
+    """Select channels that persist across leave-one-trial calibrations.
+
+    This is a conservative alternative to one-shot forward selection.  It
+    never sees a future recording: each inner fit omits an entire character
+    trial, and final channel votes are resolved deterministically by mean
+    inner-CV score then channel index.
+    """
+    ids = np.asarray(trial_ids)
+    unique_trials = np.unique(ids)
+    if len(unique_trials) < 3:
+        raise ValueError("stability selection requires at least three trials")
+    if not 1 <= channels <= len(channel_names):
+        raise ValueError("channels must fit channel_names")
+    votes = np.zeros(len(channel_names), dtype=int)
+    scores = np.zeros(len(channel_names), dtype=float)
+    for held_out in unique_trials:
+        keep = ids != held_out
+        selected = forward_select_channels(
+            epochs[keep], np.asarray(labels)[keep], ids[keep], channel_names,
+            sampling_rate, min_channels=channels, max_channels=channels,
+        )
+        votes[selected.indices] += 1
+        scores[selected.indices] += selected.cross_validated_balanced_accuracy
+    indices = sorted(
+        range(len(channel_names)), key=lambda index: (-votes[index], -scores[index], index)
+    )[:channels]
+    return ChannelSelectionResult(
+        indices=indices,
+        names=[channel_names[index] for index in indices],
+        cross_validated_balanced_accuracy=float(np.mean(scores[indices] / np.maximum(votes[indices], 1))),
+        history=[{
+            "selection_method": "leave_one_trial_stability",
+            "vote_count": int(votes[index]),
+            "mean_inner_cv_balanced_accuracy": float(scores[index] / max(votes[index], 1)),
+            "channel": channel_names[index],
+        } for index in indices],
+    )
+
+
 def biophysically_regularized_channel_selection(
     epochs: np.ndarray,
     labels: np.ndarray,
