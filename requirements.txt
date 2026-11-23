@@ -3,4 +3,6 @@ numpy>=1.24,<3
 matplotlib>=3.8,<4
 reportlab>=4.0,<5
 scipy>=1.11,<2
+# EDF input for the optional bigP3BCI adapter.
+pyedflib>=0.1.42,<1
 

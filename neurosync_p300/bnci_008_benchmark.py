@@ -13,6 +13,7 @@ from .competition_replication import _subset
 from .features import extract_features
 from .model import DiagonalLDA, ShrinkageLDA
 from .preprocessing import preprocess_epochs
+from .spatial import TemplateSpatialFilter
 
 
 def _decode(scores: np.ndarray, dataset, targets: list[str], repetitions: int) -> float:
@@ -54,9 +55,24 @@ def benchmark_subject(path: str | Path, *, channel_counts=(4, 6, 8), repetitions
             selected_test, test.sampling_rate, window_seconds=(0.10, 0.80), downsample=8
         )
         og_model = ShrinkageLDA(shrinkage=0.10).fit(og_train, train.labels)
+        # This is a comparator, not an xDAWN claim: the filter is a compact
+        # supervised template/noise spatial projection fit on calibration data.
+        spatial = TemplateSpatialFilter(n_components=min(3, count), ridge=0.10).fit(
+            selected_train, train.labels
+        )
+        spatial_train = extract_features(
+            spatial.transform(selected_train), train.sampling_rate,
+            window_seconds=(0.10, 0.80), downsample=8,
+        )
+        spatial_test = extract_features(
+            spatial.transform(selected_test), test.sampling_rate,
+            window_seconds=(0.10, 0.80), downsample=8,
+        )
+        spatial_model = ShrinkageLDA(shrinkage=0.10).fit(spatial_train, train.labels)
         method_scores = {
             "diagonal_lda_baseline": baseline_model.decision_function(baseline_test),
             "spatiotemporal_shrinkage_lda": og_model.decision_function(og_test),
+            "template_spatial_shrinkage_lda": spatial_model.decision_function(spatial_test),
         }
         results.append({
             "channels": count,
@@ -80,6 +96,7 @@ def benchmark_subject(path: str | Path, *, channel_counts=(4, 6, 8), repetitions
         "held_out_feedback_characters": len(test_ids),
         "protocol": "official first-15 calibration / final-20 feedback split",
         "claim_boundary": "Public active-electrode ALS data; not dry-electrode, prospective, or wet-reference evidence.",
+        "event_table_audit": dataset.metadata["event_table_audit"],
         "results": results,
     }
 
@@ -92,7 +109,8 @@ def benchmark_cohort(directory: str | Path) -> dict:
     summary = {}
     for count in (4, 6, 8):
         summary[str(count)] = {}
-        for method in ("diagonal_lda_baseline", "spatiotemporal_shrinkage_lda"):
+        methods = subjects[0]["results"][0]["methods"].keys()
+        for method in methods:
             summary[str(count)][method] = {}
             for repetition in (1, 3, 5, 10):
                 values = [

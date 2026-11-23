@@ -22,6 +22,11 @@ Subject A01 was used to choose one fixed improvement over the original diagonal-
 
 No method setting was changed after viewing A02–A08. The final 20 characters of every participant remained outside channel selection and model fitting.
 
+Before each model was fit, the imported event table was audited against the
+published protocol: 35 character trials, 120 flashes per trial, ten
+presentations of every row/column code, and exactly one target row plus one
+target column. All eight source files passed this audit.
+
 ## Confirmation result
 
 | Participant | 4 channels | 6 channels | 8 channels |
@@ -43,6 +48,18 @@ This is strong evidence that six carefully selected channels can preserve eight-
 
 At six channels and ten repetitions, the original diagonal-LDA confirmation mean was 60.7%; the locked spatiotemporal shrinkage-LDA mean was 92.9%. This 32.2-point absolute improvement comes from modelling correlated spatiotemporal ERP structure instead of treating every feature as independent.
 
+| Six-channel comparator | A02–A08 mean at 10 repetitions | Interpretation |
+|---|---:|---|
+| Diagonal LDA | 60.7% | Deliberately simple baseline |
+| Spatiotemporal shrinkage LDA | **92.9%** | Locked primary method |
+| Training-only template spatial filter + shrinkage LDA | 91.4% | Did not improve the primary method |
+
+The spatial projection was included as a fair, training-only ablation. It is
+not labelled xDAWN and is not carried forward as a claimed improvement because
+it reduced the six-channel confirmation mean by 1.4 points. Reporting this
+negative comparator is important: NeuroSync's current evidence supports a
+simple sparse spatiotemporal decoder, not an unverified stack of extra modules.
+
 ## External context and limitation
 
 The same fixed classifier was tested on held-out characters from BCI Competition III Dataset II:
@@ -53,6 +70,18 @@ The same fixed classifier was tested on held-out characters from BCI Competition
 | Subject B | 76% | 88% |
 
 This transfer result prevents an overbroad claim: the six-channel result is excellent on BNCI 2014-008 but does not yet generalize to every P300 acquisition. The datasets differ in hardware, montage candidates, epoch duration, protocol, and signal distribution.
+
+### bigP3BCI readiness check
+
+NeuroSync now includes a conservative EDF adapter for the large public
+bigP3BCI resource. On the downloaded `StudyA/A_01` training recording it
+extracted 840 labeled epochs from seven target blocks (120 events and ten
+target events per block), using 32 EEG channels at approximately 256 Hz. This
+is a data-integrity and interoperability check, **not** a character-accuracy
+benchmark. That study exposes 120 unique stimulus codes per trial, so mapping
+them onto a 6×6 row/column decoder would be invalid. The next external study
+must define its own train/test protocol and output metric before any
+cross-dataset claim is made.
 
 ## Exact reproducibility
 

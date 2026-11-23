@@ -1,0 +1,24 @@
+{
+  "analysis_date": "2026-11-23",
+  "dataset": "BNCI 2014-008",
+  "population": "eight participants with ALS; active Ag/AgCl EEG",
+  "split": "first 15 characters calibration, final 20 characters held-out feedback",
+  "development_policy": "A01 fixed settings; A02-A08 confirmation",
+  "event_table_audit": {
+    "subjects_passed": 8,
+    "required_invariants": [
+      "35 trials", "120 events per trial", "10 presentations per code",
+      "one target row and one target column per trial"
+    ]
+  },
+  "endpoint": "ten-repetition character accuracy",
+  "confirmation_A02_A08": {
+    "six_channel_diagonal_lda": 0.6071428571,
+    "six_channel_spatiotemporal_shrinkage_lda": 0.9285714286,
+    "six_channel_template_spatial_shrinkage_lda": 0.9142857143,
+    "eight_channel_spatiotemporal_shrinkage_lda": 0.9357142857,
+    "six_minus_eight_primary": -0.0071428571,
+    "six_minus_eight_bootstrap_95_ci": [-0.0285714286, 0.0142857143]
+  },
+  "interpretation": "The template spatial ablation did not improve the locked six-channel primary method. The result is sparse active-electrode evidence only, not dry-electrode, clinical, or home-use evidence."
+}

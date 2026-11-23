@@ -7,6 +7,7 @@ import numpy as np
 from neurosync_p300.channel_selection import forward_select_channels
 from neurosync_p300.calibration import calibrate_decision_oof, calibrate_temperature_oof
 from neurosync_p300.benchmark import benchmark_wet_reference_vs_casp
+from neurosync_p300.bigp3bci_data import _rising_edges, _trial_blocks
 from neurosync_p300.decoder import DecodedTrial, DecoderConfig, decode_dataset, summarize_decoding
 from neurosync_p300.evaluation import assess_noninferiority, safe_metrics
 from neurosync_p300.features import extract_features
@@ -68,6 +69,23 @@ class CoreTests(unittest.TestCase):
         transformed = spatial.transform(clean)
         self.assertEqual(transformed.shape, (len(clean), 3, dataset.n_samples))
         self.assertTrue(np.isfinite(transformed).all())
+
+    def test_template_spatial_filter_is_fit_on_training_signal(self):
+        rng = np.random.default_rng(52)
+        labels = np.array([0] * 30 + [1] * 30)
+        epochs = rng.normal(size=(60, 4, 40))
+        epochs[labels == 1, 2, 15:25] += 1.5
+        spatial = TemplateSpatialFilter(n_components=2).fit(epochs, labels)
+        transformed = spatial.transform(epochs)
+        # A supervised projection should retain a target/non-target difference.
+        difference = transformed[labels == 1].mean(axis=(0, 2)) - transformed[labels == 0].mean(axis=(0, 2))
+        self.assertGreater(float(np.max(np.abs(difference))), 0.10)
+
+    def test_bigp3bci_status_helpers_preserve_trial_boundaries(self):
+        pulses = np.array([0, 1, 1, 0, 0, 1, 0])
+        self.assertListEqual(_rising_edges(pulses).tolist(), [1, 5])
+        targets = np.array([0, 7, 7, 0, 3, 3, 3, 0])
+        self.assertListEqual(_trial_blocks(targets), [(1, 3, 7), (4, 7, 3)])
 
     def test_sparse_feature_selector_uses_training_ranked_features(self):
         rng = np.random.default_rng(32)

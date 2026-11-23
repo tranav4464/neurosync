@@ -17,6 +17,49 @@ def _character_from_codes(row_code: int, column_code: int) -> str:
     return MATRIX[row_code - 1][column_code - 7]
 
 
+def audit_bnci_008_dataset(dataset: EEGDataset) -> dict:
+    """Check invariants of the published 2014-008 P300-speller protocol.
+
+    These checks deliberately operate on the extracted event table, rather
+    than on classifier outputs.  They make a mistaken transition detector or
+    an accidental calibration/feedback leak visible before benchmarking.
+    """
+    trial_ids = np.unique(dataset.trial_ids)
+    expected_codes = set(range(1, 13))
+    per_trial: list[dict] = []
+    for trial in trial_ids:
+        mask = dataset.trial_ids == trial
+        codes = dataset.symbols[mask].astype(int)
+        counts = {code: int(np.sum(codes == code)) for code in expected_codes}
+        targets = set(codes[dataset.labels[mask] == 1].tolist())
+        valid_target_pair = (
+            len(targets) == 2
+            and len(targets & set(range(1, 7))) == 1
+            and len(targets & set(range(7, 13))) == 1
+        )
+        per_trial.append({
+            "trial": int(trial),
+            "event_count": int(mask.sum()),
+            "code_counts": counts,
+            "target_codes": sorted(int(value) for value in targets),
+            "valid_target_pair": valid_target_pair,
+        })
+    valid = all(
+        item["event_count"] == 120
+        and set(item["code_counts"].values()) == {10}
+        and item["valid_target_pair"]
+        for item in per_trial
+    )
+    return {
+        "passed": valid,
+        "expected_trials": 35,
+        "observed_trials": int(len(trial_ids)),
+        "expected_events_per_trial": 120,
+        "expected_presentations_per_code": 10,
+        "per_trial": per_trial,
+    }
+
+
 def load_bnci_008_mat(
     path: str | Path,
     *,
@@ -108,4 +151,9 @@ def load_bnci_008_mat(
             "als_onset": str(raw.onsetALS),
         },
     )
-    return dataset.validate()
+    dataset = dataset.validate()
+    audit = audit_bnci_008_dataset(dataset)
+    if not audit["passed"] or audit["observed_trials"] != 35:
+        raise ValueError("BNCI 2014-008 event-table audit failed")
+    dataset.metadata["event_table_audit"] = audit
+    return dataset

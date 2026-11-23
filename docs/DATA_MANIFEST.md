@@ -35,3 +35,11 @@ The 2025 bigP3BCI resource is the planned cohort-scale extension: approximately 
 - PhysioNet: `https://physionet.org/content/bigp3bci/1.0.0/`
 - DOI: `10.13026/0byy-ry86`
 - License: CC BY 4.0
+
+### Downloaded schema-validation sample
+
+- Relative source path: `bigP3BCI-data/StudyA/A_01/SE001/Train/RD/A_01_SE001_RD_Train02.edf`
+- Direct source: `https://physionet.org/files/bigp3bci/1.0.0/bigP3BCI-data/StudyA/A_01/SE001/Train/RD/A_01_SE001_RD_Train02.edf`
+- Downloaded size: 8,057,142 bytes
+- SHA-256: `59226E70E588DF2CC28DAFFEA47580F759A6454BF01C61624B0378F0B24056C1`
+- Purpose: EDF/status-channel schema validation only; it is not included in the BNCI accuracy result and not a dry-electrode evaluation.
